@@ -1,0 +1,27 @@
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Helpers } from '../../../../helpers';
+import { ScriptLoaderService } from '../../../../_services/script-loader.service';
+
+
+@Component({
+    selector: "app-events",
+    templateUrl: "./events.component.html",
+    encapsulation: ViewEncapsulation.None,
+})
+export class EventsComponent implements OnInit {
+
+
+    constructor(private _script: ScriptLoaderService) {
+
+    }
+    ngOnInit() {
+
+    }
+    ngAfterViewInit() {
+        this._script.loadScripts(
+            'app-events', [
+                'assets/eventalliance/custom/api/ajax-data-event.js'
+            ]);
+    }
+
+}

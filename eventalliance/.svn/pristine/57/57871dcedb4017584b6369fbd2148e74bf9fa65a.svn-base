@@ -1,0 +1,97 @@
+import { Component, OnInit, ViewEncapsulation, AfterViewInit } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser';
+import { Helpers } from '../../../../helpers';
+import { Router, ActivatedRoute, Params } from '@angular/router';
+import { ArtistDetails } from './artistdetails.service';
+//import { Genres} from './genres';
+import { Observable } from 'rxjs';
+
+import { YouTubeArtist } from "./youtubeartist";
+import "rxjs/add/operator/map";
+//import { Artist } from "./artist";
+
+
+
+@Component({
+    selector: "app-artist-details",
+    templateUrl: "./artist-details.component.html",
+    encapsulation: ViewEncapsulation.None,
+    providers: [ArtistDetails]
+
+})
+
+export class ArtistDetailsComponent implements OnInit, AfterViewInit {
+
+    public data: any;
+    // public formData: YouTubeArtist;
+    public artistVideos: Array<YouTubeArtist>;
+
+    public videoUrl: any;
+
+    public artistName: string;
+    // public artistGenres: Array<Genres>;
+
+
+
+
+    constructor(private activatedRoute: ActivatedRoute, public _artistDetails: ArtistDetails, public domSanitizer: DomSanitizer) {
+
+    }
+    ngOnInit() {
+
+        //Object.assign(this.formData, _eventList[i]);
+
+
+
+        Helpers.setLoading(true);
+        this.activatedRoute.params.subscribe((params: Params) => {
+            let artistId = params['id']; // artist ID
+            this.getArtistDetail(artistId);
+            this.getYouTubeArtist(artistId);
+            Helpers.setLoading(false);
+
+        });
+
+
+
+
+    }
+
+    getArtistDetail(artistId: number) {
+        this._artistDetails.getDetails(artistId).subscribe((t: any) => {
+
+            this.data = t;
+            this.artistName = this.data.name;
+
+        }, (err) => {
+            Helpers.setLoading(false);
+            //TODO: Error handling 
+        });
+    }
+    ngAfterViewInit() {
+
+    }
+
+    getYouTubeArtist(artistId: number) {
+
+        this._artistDetails.getYouTubeArtistByChannel(artistId).subscribe((data: Array<YouTubeArtist>) => {
+
+            this.artistVideos = data;
+            console.log('https://www.youtube.com/embed/' + data[0].videoId);
+            this.videoUrl = this.domSanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/' + data[0].videoId);
+
+        }, (err) => {
+            console.log(err);
+
+        });
+    }
+
+    openVideoUrl(value) {
+        this.videoUrl = this.domSanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/' + value);
+
+        var aTag = jQuery("#youtubeVideoContainer");
+        jQuery('html,body').animate({ scrollTop: aTag.offset().top }, 'fast');
+    }
+
+
+}

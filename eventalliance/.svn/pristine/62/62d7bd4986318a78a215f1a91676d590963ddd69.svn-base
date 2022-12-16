@@ -1,0 +1,20 @@
+export class Question {
+
+	event_id: number;
+	question: string;
+	options: Array<{option: string }>;
+
+	constructor(){
+		this.reset()
+	}
+
+	public reset() {
+		this.event_id = 0,
+		this.question = "",
+		this.options  =  []
+	}
+
+	addOptions(options:string){
+		this.options.push({option:options});
+	}
+}

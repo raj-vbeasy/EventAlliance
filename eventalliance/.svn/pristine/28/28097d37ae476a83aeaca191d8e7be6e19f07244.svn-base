@@ -1,0 +1,135 @@
+import { Injectable } from '@angular/core';
+//import { RouterLink } from '@angular/router';
+import { environment } from '../../../../../environments/environment';
+
+import { EventService } from './events.service';
+
+declare var jQuery: any;
+
+@Injectable()
+export class EventDataTable {
+
+    constructor(private _eventService: EventService) {
+        // code...
+    }
+
+    load() {
+        var columns = [];
+        var image: string;
+        columns.push({
+            field: "name",
+            title: "Title",
+            width: 200,
+            template: function(row) {
+
+                if (row.profile_picture != null) {
+                    image = row.profile_picture;
+                } else {
+                    image = "./assets/eventalliance/media/img/users/user4.jpg";
+                }
+                return '<a href="/event-summary"  class="m-menu__link"> <img src="' + image + '" style="border-radius: 50%; height:50px; width:50px;" alt="" />    <strong>' + row.name + '</strong></a>';
+            }
+        });
+        columns.push({
+            field: "status",
+            title: "Status",
+            width: 100,
+            template: function(row) {
+                return '<span class="m-badge m-badge--brand m-badge--wide">' + row.status + '</span>';
+            }
+        });
+        columns.push({
+            field: "team_id",
+            title: "Teams",
+            width: 100,
+            template: function(row) {
+                return row.team.name;
+            }
+        });
+        columns.push({
+            field: "start_date",
+            title: "EventDate",
+            width: 100,
+            template: function(row) {
+                var start_date_time = new Date(row.start_date);
+                var startDate = (start_date_time.getMonth() + 1) + '/' + start_date_time.getDate() + '/' + start_date_time.getFullYear();
+
+                var end_date_time = new Date(row.end_date);
+                var endDate = (end_date_time.getMonth() + 1) + '/' + end_date_time.getDate() + '/' + end_date_time.getFullYear();
+                return startDate + '-' + endDate;
+            }
+        });
+        columns.push({
+            field: "ea_representative",
+            title: "EARep",
+            width: 100,
+            template: function(t, e, a) {
+                for (var i = 0; i < t.team.team_members.length; i++) {
+                    if (t.team.team_members[i].team_role_id == 3) { /* roleid=3 means EA Representative */
+                        return t.team.team_members[i].user.first_name + " " + t.team.team_members[i].user.first_name;
+                    }
+                }
+                return "N/A";
+            }
+        });
+        columns.push({
+            field: "updated_at",
+            title: "LastActivity",
+            width: 100,
+            template: function(t, e, a) {
+                return "2 Feb 2018";
+            }
+        });
+        columns.push({
+            field: "Actions",
+            width: 110,
+            title: "Actions",
+            sortable: !1,
+            overflow: "visible",
+            template: function(t, e, a) {
+                return '\t\t\t\t\t\t<div class="dropdown ' + (a.getPageSize() - e <= 4 ? "dropup" : "") + '">\t\t\t\t\t\t\t<a href="#" class="btn m-btn m-btn--hover-accent m-btn--icon m-btn--icon-only m-btn--pill" data-toggle="dropdown">                                <i class="la la-ellipsis-h"></i>                            </a>\t\t\t\t\t\t  \t<div class="dropdown-menu dropdown-menu-right">\t\t\t\t\t\t    \t<a class="dropdown-item" href="#"><i class="la la-edit"></i> Edit Details</a>\t\t\t\t\t\t    \t<a class="dropdown-item" href="#"><i class="la la-leaf"></i> Update Status</a>\t\t\t\t\t\t    \t<a class="dropdown-item" href="#"><i class="la la-print"></i> Generate Report</a>\t\t\t\t\t\t  \t</div>\t\t\t\t\t\t</div>\t\t\t\t\t\t<a href="#" class="m-portlet__nav-link btn m-btn m-btn--hover-accent m-btn--icon m-btn--icon-only m-btn--pill modal-activator"  data-id="' + t.id + '" title="Edit details">\t\t\t\t\t\t\t<i class="la la-edit"></i>\t\t\t\t\t\t</a>\t\t\t\t\t\t<a href="#" class="m-portlet__nav-link btn m-btn m-btn--hover-danger m-btn--icon m-btn--icon-only m-btn--pill" title="Delete">\t\t\t\t\t\t\t<i class="la la-trash"></i>\t\t\t\t\t\t</a>\t\t\t\t\t'
+            }
+        });
+
+        var _self = this;
+
+        var t = jQuery("#event_datatable").mDatatable({
+            data: {
+                type: "remote",
+                source: {
+                    read: {
+                        method: "GET",
+                        url: environment.apiBaseUrl + "events/list.json",
+                        map: function(t) {
+                            _self._eventService.setEventList(t.data);
+                            var e = t;
+                            return void 0 !== t.data && (e = t.data), e
+                        }
+                    }
+                },
+                pageSize: 10,
+                serverPaging: !0,
+                serverFiltering: !0,
+                serverSorting: !0
+            },
+            layout: {
+                scroll: !1,
+                footer: !1
+            },
+            sortable: !0,
+            pagination: !0,
+            toolbar: {
+                items: {
+                    pagination: {
+                        pageSizeSelect: [10, 20, 30, 50, 100]
+                    }
+                }
+            },
+            search: {
+                input: $("#generalSearch")
+            },
+            columns: columns
+        });
+        t.getDataSourceQuery();
+    }
+}

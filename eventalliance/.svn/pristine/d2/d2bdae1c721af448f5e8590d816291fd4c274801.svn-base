@@ -1,0 +1,20 @@
+import { TeamMember } from "./teammember";
+
+export class Team {
+    id: number;
+    name: string;
+    photo: string;
+
+    members: Array<TeamMember>;
+
+    constructor() { 
+    	this.reset();
+    }
+
+    public reset(){
+    	this.id = 0;
+    	this.name = "";
+    	this.photo = "";
+    	this.members = [];
+    }
+}

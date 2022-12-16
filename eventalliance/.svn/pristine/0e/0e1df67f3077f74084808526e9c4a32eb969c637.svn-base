@@ -1,0 +1,192 @@
+import { Component, OnInit, ViewEncapsulation, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Helpers } from '../../../../helpers';
+import { ScriptLoaderService } from '../../../../_services/script-loader.service';
+
+import { UserService } from './users.service';
+import { UsersDataTable } from './users.datatable';
+import { Users } from './users';
+import { WSResponse } from "../../../../ws-response";
+import { EventService } from "../events/events.service";
+import { FileUploader } from '../../../../_services/fileuploader.service';
+import { environment } from "../../../../../environments/environment";
+
+declare var jQuery: any;
+
+@Component({
+    selector: "app-users",
+    templateUrl: "./users.component.html",
+    encapsulation: ViewEncapsulation.None,
+    providers: [UserService, UsersDataTable, FileUploader]
+})
+export class UsersComponent implements OnInit, AfterViewInit {
+    @ViewChild('userImage') userImage: ElementRef;
+
+    public formData: Users;
+    public modalTitle: string;
+
+    public allGenres: Array<any>;
+
+    public search:{keyword: string, teamId: number} = {keyword: "", teamId: 0};
+
+    public allTeams:Array<any> = [];
+
+    constructor(private _uploaderService:FileUploader, private _script: ScriptLoaderService, private _usersDataTable: UsersDataTable, private _userService: UserService, private _eventService: EventService) {
+        this.formData = new Users();
+    }
+
+     public userImgClick(){
+        let el: HTMLElement = this.userImage.nativeElement as HTMLElement;
+        el.click();
+    }
+
+    public onUserImageChange(event:any){
+        let file = event.srcElement.files;
+        this._uploaderService.upload (environment.fileUploadUrl, file).subscribe((response:any) => {
+            event.srcElement.value = "";
+            if(response.hasOwnProperty("status")){
+                if(response.status === true){
+                    this.formData.temp_photo_id = response.data.id;
+                    this.formData.profile_pic = response.data.fileUrl; //response.data.fileName holds the basee fileName
+                }
+            }
+        }, (error:any) => {
+            console.log(error);
+            event.srcElement.value = "";
+        });
+    }
+
+
+    public TableClick($e: any) {
+        var target = $e.target || $e.srcElement || $e.currentTarget;
+
+        if (jQuery(target).hasClass("modal-activator")) {
+            this._getUserDetails(jQuery(target).data("id"));
+            $e.preventDefault();
+        } else {
+            var parent = jQuery(target).parent();
+            if (parent.hasClass("modal-activator")) {
+                this._getUserDetails(parent.data("id"));
+                $e.preventDefault();
+            }
+        }
+
+        // For Delete option
+        if (jQuery(target).hasClass("btn-delete")) {
+            //alert('First');
+            Helpers.setLoading(true);
+            this._userService.removeUser(jQuery(target).data("id")).subscribe((response: WSResponse) => {
+                Helpers.setLoading(false);
+                this._usersDataTable.redraw();
+            },
+                (err) => {
+
+                });
+            $e.preventDefault();
+        } else {
+            //alert(parent.data("id"));
+            var parent = jQuery(target).parent();
+            if (parent.hasClass("btn-delete")) {
+                Helpers.setLoading(true);
+                this._userService.removeUser(parent.data("id")).subscribe((response: WSResponse) => {
+                    Helpers.setLoading(false);
+                    this._usersDataTable.redraw();
+                },
+                    (err) => {
+
+                    });
+                $e.preventDefault();
+            }
+        }
+    }
+
+    ngOnInit() {
+
+    }
+
+    public searchUsers(){
+        this._usersDataTable.search(this.search.keyword + "^" + this.search.teamId);
+    }
+
+    public openCreateUserModal() {
+        this.formData.reset();
+        this.modalTitle = "Create User";
+        jQuery("#editUser").modal("show");
+    }
+
+    public SaveUser(): void {
+        Helpers.setLoading(true);
+        //alert(this.formData.id);
+        if (this.formData.id > 0) {
+            /* If we are in edit mode, call the updateUser API */
+            this._userService.updateUser(this.formData).subscribe((response: WSResponse) => {
+                Helpers.setLoading(false);
+                if (response.status === true) {
+                    //TODO: show success alert
+                    jQuery("#editUser").modal("hide");
+                    this._usersDataTable.redraw();
+                } else {
+                    //TODO: Show failure alert
+                }
+            }, (err) => {
+                console.error(err);
+                Helpers.setLoading(false);
+                //TODO: Error handling
+            });
+        } else {
+            /* Else we are in add mode, call the createUser API */
+            this._userService.createUser(this.formData).subscribe((response: WSResponse) => {
+                console.log(response);
+                Helpers.setLoading(false);
+                if (response.status === true) {
+                    /* TODO: User has been crated. Show a success message and close the modal */
+                    jQuery("#editUser").modal("hide");
+                    this._usersDataTable.redraw();
+                }
+            }, (err) => {
+                console.log(err);
+                Helpers.setLoading(false);
+            });
+        }
+    }
+
+    private _getUserDetails(userId: number) {
+        this.formData.reset();
+        var i: number;
+        var _userList: Array<Users> = this._userService.getUsersList();
+
+        for (i = 0; i < _userList.length; i++) {
+            //console.log('First 2');
+            if (_userList[i].id == userId) {
+                Object.assign(this.formData, _userList[i]);
+
+                if(this.formData.profile_pic != null){
+                    this.formData.profile_pic = environment.graphicsBaseUrl + "user/" + this.formData.profile_pic;
+                }
+
+                this.modalTitle = "Edit User: " + this.formData.first_name + " " + this.formData.last_name;
+
+                jQuery("#editUser").modal("show");
+                break;
+            }
+        }
+        console.log(userId);
+        jQuery("#editUser").modal("show");
+    }
+
+    ngAfterViewInit() {
+        this._usersDataTable.load();
+        //Initialize the bootstrap modals;
+        jQuery("#editUser").modal({ show: false }).on("hidden.bs.modal", (e) => {
+
+        });
+
+        this._eventService.getAllTeams().subscribe((data) => {            
+            var firstSelectElement: { id: number, name: string } = {id: 0, name: "-- All Teams --"};
+            this.allTeams = data;
+            this.allTeams.splice(0, 0, firstSelectElement);           
+        }, (err) => {
+
+        });
+    }
+
+}

@@ -1,0 +1,203 @@
+import { Component, Input, Output, ViewEncapsulation, AfterViewInit, OnChanges, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser';
+import { EventService } from '../events/events.service';
+
+import { ArtistDetails } from '../artist-details/artistdetails.service';
+import { YouTubeVideo } from "../artist-details/youtubevideo";
+
+import { Helpers } from '../../../../helpers';
+
+import { ArtistVoting, Vote } from '../../../../_services/artist-voting.service';
+
+@Component({
+    selector: "public-survey-component",
+    templateUrl: "./public-survey.component.html",
+    encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [ArtistDetails]
+})
+
+export class PublicSurveyComponent implements OnChanges, AfterViewInit {
+	public eventDetails:any = {};
+
+	private _oldEventId:number;
+	private _oldStep: number = 1;
+	public totalStepCount:number = 6;
+	public surveyQuestionAnswers:Array<any> = [];
+
+	public surveyArtistVideos: Array<YouTubeVideo>;
+	public videoUrl: any = null;
+	public video: { title: string, description: string } = { title: "", description: "" };
+
+
+	@Input() step:number;
+	@Input() title:string;
+	@Input() eventId:number;
+	@Output() onStepChange: EventEmitter<number> = new EventEmitter<number>();
+	@Output() onTitleChange:EventEmitter<string> = new EventEmitter<string>();
+	@Output() onLastStep: EventEmitter<void> = new EventEmitter<void>();
+	@Output() onFirstStep: EventEmitter<void> = new EventEmitter<void>();
+	@Output() onArtistsSectionToggle: EventEmitter<boolean> = new EventEmitter<boolean>();
+
+	constructor (private cd: ChangeDetectorRef, private _eventService: EventService, public _artistDetails: ArtistDetails, public domSanitizer: DomSanitizer, private artistVoting: ArtistVoting){
+
+	}
+
+
+	ngAfterViewInit(){
+		this.artistVoting.VotingStream.subscribe((vote:Vote) => {
+			console.log("Vote cast => " + vote.vote);
+			this._nextStep();
+		});
+	}
+
+	private _nextStep(){
+		this.step++;
+		this.ngOnChanges();
+	}
+
+	ngOnChanges(){
+		if(this._oldEventId != this.eventId){
+			this._oldEventId = this.eventId;
+			this._getEventSurvey();
+		}
+
+		if(this._oldStep != this.step){
+			this._oldStep = this.step;
+
+			this.onStepChange.emit(this.step);
+			
+			if(this.step == this.totalStepCount){
+				this.onLastStep.emit();		
+				this.title = "Thank You!";		
+			}
+			if(this.step == 1){
+				this.onFirstStep.emit();
+				this.title="Welcome";
+
+			} 
+			if(this.step==2){
+				this.title="About the Event";
+
+			}
+			if(this.step==3){
+				this.title="Instructions";
+			}
+			if(this.step>=4 && this.step<(4+this.eventDetails.event_artists.length)){
+				this.onArtistsSectionToggle.emit(true);
+				let artistId=this.eventDetails.event_artists[this.step-4].artist_id;
+				this.title=this.eventDetails.event_artists[this.step-4].artist.name;
+				//console.log(artistId);
+				this.surveyArtistVideos = [];
+				this.videoUrl = null;
+				this.video.title = "";
+				this.video.description = "";
+
+				Helpers.setLoading(true);
+				this._artistDetails.getYouTubeArtistByChannel(artistId).subscribe((data: Array<YouTubeVideo>) => {
+				Helpers.setLoading(false);	            
+	            this.surveyArtistVideos = data;
+	            this.videoUrl = this.domSanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/' + data[0].videoId);
+	            this.video.title = this.surveyArtistVideos[0].videoTitle;
+	            this.video.description = this.surveyArtistVideos[0].videoDescription;
+	            this.cd.markForCheck();
+		        }, (err) => {
+		            console.log(err);
+		            // TODO : Error Handling
+		             Helpers.setLoading(false);
+		        });
+			} else {
+				this.onArtistsSectionToggle.emit(false);
+			}
+
+			let firstIndex:number=4+this.eventDetails.event_artists.length;
+
+			console.log(this.step);
+			console.log(this.eventDetails.event_artists.length);
+
+			if(this.step>=(4+this.eventDetails.event_artists.length) && this.step<(4+this.eventDetails.event_artists.length+this.surveyQuestionAnswers.length)){
+				this.title="Closing Questions "+(this.step-firstIndex+1)+"/"+this.surveyQuestionAnswers.length;
+
+			}
+			if(this.step == (this.totalStepCount - 1) && this.eventDetails.opt_in == 1){
+				this.title="Opt-In";
+			}
+
+			this.onTitleChange.emit(this.title);
+			this.cd.markForCheck();
+		}
+	}
+
+    openVideoUrl(index: number) {
+        
+       this.videoUrl = this.domSanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/' + this.surveyArtistVideos[index].videoId);
+	            this.video.title = this.surveyArtistVideos[index].videoTitle;
+	            this.video.description = this.surveyArtistVideos[index].videoDescription;
+        var aTag = jQuery("#youtubeVideoContainer");
+        jQuery('html,body').animate({ scrollTop: aTag.offset().top - 100 }, 'fast');
+    }
+
+    takeSurvey(){
+    	this._nextStep();
+    }
+
+    private _getEventSurvey(){
+    	console.log(this.eventId);
+    	if(this.eventId){
+
+    		console.log("About to call API. Event ID =>" + this.eventId); 
+
+    		// Get Event details
+            this._eventService.getEventDetails(this.eventId).subscribe((data: any) => {
+                Helpers.setLoading(false);
+                this.eventDetails = data.event;
+                this.totalStepCount = 3; //First 3 fixed steps
+                this.totalStepCount += data.event.event_artists.length;
+
+                // Srtart
+
+                // End
+
+	            if(data.event.opt_in == 1) this.totalStepCount++;
+	            this.totalStepCount += 1; //Thank you step
+                this._eventService.getEventSurveyQueries(this.eventId).subscribe((data:any) => {
+	                Helpers.setLoading(false);
+	                for(var _key in data.data){
+	                	this.totalStepCount++;
+						this.surveyQuestionAnswers.push({
+							"questions": data.data[_key].question,
+							"options": data.data[_key].survey_question_options
+						});
+					}              
+					console.log(this.totalStepCount);
+					this.cd.markForCheck();
+	            }, (err) => {
+	            	//TODO: Error handling
+	                Helpers.setLoading(false);
+	            });
+            }, (err) => {
+            	//TODO: Error handling
+                Helpers.setLoading(false);                
+            });
+
+
+            // For Survey 		  
+
+	     /*  this._artistDetails.getYouTubeArtistByChannel(artistId).subscribe((data: Array<YouTubeVideo>) => {
+	            console.log(data);
+	            this.surveyArtistVideos = data;
+	            this.videoUrl = this.domSanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/' + data[0].videoId);
+	            this.video.title = this.surveyArtistVideos[0].videoTitle;
+	            this.video.description = this.surveyArtistVideos[0].videoDescription;
+	        }, (err) => {
+	            console.log(err);
+
+	        });*/
+	
+    		
+
+    		//TODO: Call API to get the event survey form
+    		//TODO: After getting result from API, call this.cd.markForCheck();
+    	}
+    }
+}

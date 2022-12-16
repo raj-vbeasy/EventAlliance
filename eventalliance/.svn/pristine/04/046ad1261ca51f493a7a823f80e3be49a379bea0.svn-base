@@ -1,0 +1,20 @@
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Helpers } from '../../../../helpers';
+
+
+@Component({
+	selector: "app-event-summary",
+	templateUrl: "./event-summary.component.html",
+	encapsulation: ViewEncapsulation.None,
+})
+export class EventSummaryComponent implements OnInit {
+
+
+	constructor() {
+
+	}
+	ngOnInit() {
+
+	}
+ 
+}

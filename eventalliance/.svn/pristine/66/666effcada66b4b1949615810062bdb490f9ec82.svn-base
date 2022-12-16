@@ -1,0 +1,197 @@
+import { Component, OnInit, ViewEncapsulation, AfterViewInit, Input, ViewChildren, Directive, HostListener } from '@angular/core';
+import { FormControl, FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { Helpers } from '../../../../helpers';
+import { ScriptLoaderService } from '../../../../_services/script-loader.service'
+import { environment } from '../../../../../environments/environment'
+import { WSResponse } from "../../../../ws-response";
+
+import { ArtistService } from './artists.service'
+import { Artist } from './artist';
+import { ArtistChannel } from "./artistchannel";
+import { ArtistGenre } from "./artistgenre";
+import { Channel } from "./channel";
+import { ArtistDataTable } from "./artists.datatable";
+
+
+import * as $ from "jquery";
+declare var jQuery: any;
+
+
+@Component({
+    selector: "app-artists",
+    templateUrl: "./artists.component.html",
+    encapsulation: ViewEncapsulation.None,
+    providers: [ArtistService, ArtistDataTable],
+})
+
+export class ArtistsComponent implements OnInit, AfterViewInit {
+    public formData: Artist;
+    public modalTitle: string;
+	
+    public allGenres: Array<any>;
+    public allBudgets: Array<any>;
+
+    teamForm: FormGroup;
+    formUserID = [];
+
+    public currentUser: any = {};
+
+
+    public search:{keyword: string, genreId: number, budgetId: number} = {keyword: "", genreId: 0, budgetId: 0};
+
+    constructor(private _artistService: ArtistService, private _artistDataTable: ArtistDataTable, private _scriptLoaderService: ScriptLoaderService) {
+        this.formData = new Artist();
+    }
+
+
+    ngOnInit() {
+        this.currentUser  = JSON.parse(localStorage.getItem('currentUser'));
+    }
+
+    public openTeamAddModal() {
+        this.formData.reset();
+        this.modalTitle = "Create an Artist";
+        jQuery("#editArtist").modal("show");
+    }
+
+    public TableClick($e: any) {
+        var target = $e.target || $e.srcElement || $e.currentTarget;
+
+        if (jQuery(target).hasClass("modal-activator")) {
+            this._getArtistDetails(jQuery(target).data("id"));
+            $e.preventDefault();
+        } else {
+            var parent = jQuery(target).parent();
+            if (parent.hasClass("modal-activator")) {
+                this._getArtistDetails(parent.data("id"));
+                $e.preventDefault();
+            }
+        } 
+    }
+
+    public searchArtists(){
+        this._artistDataTable.search(this.search.keyword + "^" + this.search.genreId.toString() + "^" + this.search.budgetId.toString());
+    }
+     
+    public resetArtistsData() {
+       this.search.keyword = '';
+       this.search.genreId = 0;
+       this.search.budgetId = 0;
+       this._artistDataTable.search('');
+    }
+
+	public saveArtists(){
+        this.formData.genres = [];
+        var _selectedGenres = jQuery("#cmbGenres").val();
+        var _artistGenre: ArtistGenre;
+        for(var i=0; i<_selectedGenres.length; i++){
+            _artistGenre = new ArtistGenre();
+            _artistGenre.id = _selectedGenres[i];
+            this.formData.genres.push(_artistGenre);
+        }
+        this.formData.budgetId = jQuery("#cmbBudget").val();
+
+        if(this.formData.id > 0){
+    		this._artistService.updateArtist(this.formData).subscribe((response:WSResponse) => {
+                if(response.status === true){
+                    alert(response.message);
+                    jQuery("#modal_artist").modal("hide");
+                    this._artistDataTable.redraw();
+                } else {
+                    alert("Error\n\n" + response.message);
+                }
+            }, (err) => {
+                console.log(err);
+                alert("Error\n\nThere was an error communicating with the server");
+            });
+        } else {
+            this._artistService.createArtist(this.formData).subscribe((response:WSResponse) => {
+                if(response.status === true){
+                    alert(response.message);
+                    jQuery("#modal_artist").modal("hide");
+                    this._artistDataTable.redraw();
+                } else {
+                    alert("Error\n\n" + response.message);
+                }
+            }, (err) => {
+                console.log(err);
+                alert("Error\n\nThere was an error communicating with the server");
+            });
+        }
+	}
+
+    private _getArtistDetails(artistId: number) {
+        this.formData.reset();
+        console.log('click' + artistId);
+        Helpers.setLoading(true);
+        this._artistService.getArtistDetails(artistId).subscribe((t: Artist) => {
+            var _selectedGenres = [];
+            Helpers.setLoading(false);
+            this.formData = Object.assign(new Artist, t);
+            for(var i=0; i<this.formData.genres.length; i++){
+                _selectedGenres.push(<any>(this.formData.genres[i])["genre_id"]);
+            }
+            jQuery("#cmbGenres").val(_selectedGenres).trigger("change");
+            jQuery("#cmbBudget").val(this.formData.budgetId).trigger("change");
+            this.modalTitle = "Edit " + this.formData.name;
+            jQuery("#modal_artist").modal("show");
+        }, (err) => {
+            Helpers.setLoading(false);
+        });
+    }
+
+    public openCreateArtistModal(){
+         this.modalTitle = "Add Artist";
+         this.formData.reset();
+         jQuery("#modal_artist").modal("show");
+    }
+
+
+    ngAfterViewInit() {
+        this.formData.reset();
+
+        this._scriptLoaderService.loadScript("select2", "/assets/eventalliance/custom/components/forms/widgets/select2.js", true).then(() => {
+
+            // Fetach all genre data from service
+            this._artistService.getAllGenres().subscribe((data: Array<any>) => {
+                var firstSelectElement: any = { id: "", name: "" }
+                firstSelectElement.id = 0;
+                firstSelectElement.name = "-- Select --";
+                this.allGenres = data;
+                this.allGenres.splice(0, 0, firstSelectElement);
+                setTimeout(() => {
+                    jQuery("#cmbGenres").select2();
+                }, 200);
+            }, (err) => {
+
+            });
+
+            // Fetch all budgets data
+
+            this._artistService.getAllBudgets().subscribe((data: Array<any>) => {
+                var firstSelectElement: any = { id: "", amount: "" }
+                firstSelectElement.id = 0;
+                firstSelectElement.amount = "-- Select --";
+                this.allBudgets = data;
+                this.allBudgets.splice(0, 0, firstSelectElement);
+                setTimeout(() => {
+                    jQuery("#cmbBudget").select2();
+                }, 200);
+            }, (err) => {
+
+            });
+        });
+
+        
+
+
+        //Initialize the bootstrap modals;
+        jQuery("#modal_artist").modal({ show: false }).on("hidden.bs.modal", (e) => {
+            this.formData.reset();
+        });
+
+        this._artistDataTable.load();
+
+    }
+
+}

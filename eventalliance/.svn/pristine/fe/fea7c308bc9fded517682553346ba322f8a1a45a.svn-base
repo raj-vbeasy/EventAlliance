@@ -1,0 +1,137 @@
+<?php
+
+namespace App\Controller\Api;
+
+use App\Controller\ApiController;
+use Cake\ORM\TableRegistry;
+
+class UsersController extends ApiController {
+
+    public function getUser($requestData = null) {
+
+        /*         * ** */
+        $tblUsers = TableRegistry::get("Users");
+        $length = empty($requestData->param('records')) ? 10 : $requestData->param('records');
+       
+        $arrWhere = [];
+        if (!empty($requestData['email'])) {
+            $arrWhere = ['Users.email' => $requestData['email']];
+        }
+        if (!empty($requestData['first_name'])) {
+            $arrWhere = ['Users.first_name' => $requestData['first_name']];
+        }
+        if (!empty($requestData['last_name'])) {
+            $arrWhere = ['Users.last_name' => $requestData['last_name']];
+        }
+
+        // Prepare the paged query
+        $arrUser = $tblUsers->find('all')
+                ->where($arrWhere)
+                ->hydrate(false)
+                ->limit($length)
+                ->page($requestData->param('page'))
+                ->toArray();
+        return $arrUser;
+    }
+
+    public function index() {
+		$page = $this->request->param('page');
+		$records = $this->request->param('records');
+		$pass_params = $this->request->param('pass');
+		echo "Page => " . $page;
+		echo "<br>";
+		echo "Records => " . $records;
+		echo "<br>";
+		echo "Query => " . (count($pass_params) > 0 ? $pass_params[0] : ""); 
+		echo "<pre>";
+		print_r($this->request);
+		exit;
+        $requestData = $this->request;
+        $arrUser = $this->getUser($requestData);
+        $this->set([
+            'response' => $arrUser,
+            '_serialize' => ['response']
+        ]);
+    }
+
+    public function delete() {
+        $return = 'ERROR';
+        $message = 'There is a problem of deleting request data.';
+        $deleteId = $this->request->param('id');
+        $tblUsers = TableRegistry::get("Users");
+        $userEntity = $tblUsers->get($deleteId);
+        $userEntity->set('is_deleted', 1);
+        $tblUsers->save($userEntity);
+        if ($userEntity->errors()) {
+            $return = 'SUCCESS';
+            $message = 'Sucessfully delete the data.';
+        }
+        $this->set([
+            'response' => ["status" => $return, "message" => $message],
+            '_serialize' => ['response']
+        ]);
+    }
+    public function create() {
+        $requestData = $this->request->getData();
+        $result = $this->save($requestData);
+        $message = [];
+        if (!empty($result)) {
+            $return = 'SUCCESS';
+            $message['id'] = $result;
+            $message['message'] = 'Successfully save request data.';
+        } else {
+            $return = 'ERROR';
+            $message['message'] = 'There is a problem of saving request data.';
+        }
+
+        $this->set([
+            'response' => ["status" => $return, "message" => $message],
+            '_serialize' => ['response']
+        ]);
+    }
+
+    public function save($userData) {
+        $tblUsers = TableRegistry::get("Users");
+        $id = $this->request->param('id');
+        if (empty($id)) {
+            $userEntity = $tblUsers->newEntity();
+        } else {
+            $userEntity = $tblUsers->get($id);
+        }
+        $userEntity->set('email', $userData['email']);
+        $userEntity->set('login_password', $userData['login_password']);
+        $userEntity->set('first_name', $userData['first_name']);
+        $userEntity->set('last_name', $userData['last_name']);
+        $userEntity->set('phone', $userData['phone']);
+        $userEntity->set('address', $userData['address']);
+        $userEntity->set('city', $userData['city']);
+        $userEntity->set('zipcode', $userData['zipcode']);
+        $tblUsers->save($userEntity);
+
+        if (empty($userEntity->errors())) {
+            return $userEntity->id;
+        } else {
+            return false;
+        }
+    }
+
+    public function update() {
+        $requestData = $this->request->getData();
+        $result = $this->save($requestData);
+        $message = [];
+
+        if (!empty($result)) {
+            $return = 'SUCCESS';
+            $message['id'] = $result;
+            $message['message'] = 'Successfully save request data.';
+        } else {
+            $return = 'ERROR';
+            $message['message'] = 'There is a problem of saving request data.';
+        }
+        $this->set([
+            'response' => ["status" => $return, "message" => $message],
+            '_serialize' => ['response']
+        ]);
+    }
+
+}

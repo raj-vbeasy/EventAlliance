@@ -1,0 +1,42 @@
+export class Artist {
+    id: number;
+    name: string;    
+    website: string;
+    budgetId: number;
+    videoDescription: string;
+    videoView: number;
+    videoLike: number;
+    videoDislike: number;
+    videoFavorite: number;
+    videoComments: number;
+    artistStatusId: number;
+    profilePicture: string;
+    channelIds: string;
+    createdAt: Date;
+    isDeleted: number;   
+
+    
+
+    constructor() { 
+    	this.reset();
+    }
+
+    public reset(){
+    	this.id = 0;
+    	this.name = "";
+        this.website = null;
+        this.budgetId = null;
+        this.videoDescription = "";
+        this.videoView = 0;
+        this.videoLike = 0;
+        this.videoDislike = 0;
+        this.videoFavorite = 0;
+        this.videoComments = 0;
+        this.artistStatusId = 0;
+        this.profilePicture = "";
+        this.budgetId = 0;
+        this.channelIds = "";
+        this.createdAt = null;
+        this.isDeleted = 0;       
+    }
+}

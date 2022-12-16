@@ -1,0 +1,56 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from "rxjs";
+import { environment } from '../../../../../environments/environment';
+import { WSResponse } from "../../../../ws-response";
+import "rxjs/add/operator/map";
+import { YouTubeArtist } from "./youtubeartist";
+
+@Injectable()
+export class ArtistDetails {
+
+    constructor(private _httpClient: HttpClient) { 
+
+    }
+
+    getDetails(artistId: number): Observable<any> {
+       
+       return this._httpClient.get<any>(environment.apiBaseUrl + "artists/"+artistId+"/getDetails.json").map((response) : Array<any> => {
+       //var _artistGet:Array<any>;
+       // for(var i=0;i<response.data.artist_genres;i++){
+
+        
+
+       // }
+        
+        return response.data;
+    });
+
+
+    }     
+
+
+
+    getYouTubeArtistByChannel(DBArtistID: number): Observable<Array<YouTubeArtist>> {
+        return this._httpClient.get<any>(environment.apiBaseUrl + "youtube/live/" + DBArtistID +".json").map((response): Array<YouTubeArtist> => {
+            var _youtubeArtists: Array<YouTubeArtist> = [];
+            var _youtubeArtist: YouTubeArtist;           
+            
+            for (var i = 0; i < response.channelVideosSearchResult.items.length; i++) {
+                _youtubeArtist = new YouTubeArtist();
+                _youtubeArtist.videoId = response.channelVideosSearchResult.items[i].id.videoId;
+                _youtubeArtist.thumbnailsUrl = response.channelVideosSearchResult.items[i].snippet.thumbnails.default.url;
+                _youtubeArtist.channelTitle = response.channelVideosSearchResult.items[i].snippet.channelTitle;
+                _youtubeArtist.artistTitle = response.channelVideosSearchResult.items[i].snippet.title;   
+                _youtubeArtist.artistDescription = response.channelVideosSearchResult.items[i].snippet.description;                 
+                _youtubeArtists.push(_youtubeArtist);              
+            
+            }
+           
+            return _youtubeArtists;
+
+        });
+    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+    
+   
+}

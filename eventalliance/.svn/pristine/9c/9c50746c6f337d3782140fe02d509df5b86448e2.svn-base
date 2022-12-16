@@ -1,0 +1,44 @@
+import { Component, OnInit, ViewEncapsulation, AfterViewInit } from '@angular/core';
+import { ActivatedRoute, Params } from '@angular/router';
+import { Helpers } from '../../../../helpers';
+import { ScriptLoaderService } from '../../../../_services/script-loader.service';
+import { ArtistDetails } from '../artist-details/artistdetails.service';
+
+
+@Component({
+    selector: "app-about-artist",
+    templateUrl: "./about-artist.component.html",
+    encapsulation: ViewEncapsulation.None,
+    providers: [ArtistDetails]
+})
+
+export class AboutArtistComponent implements OnInit, AfterViewInit {
+	public artistId: number;
+	public artistName: string;
+	public data: any = {artist_genres : [], budget: {amount : 0}};
+
+    constructor(private activatedRoute: ActivatedRoute, private _artistDetailService: ArtistDetails) {
+
+    }
+    ngOnInit() {
+
+    }
+
+    ngAfterViewInit() {
+        this.activatedRoute.params.subscribe((params: Params) => {
+            this.artistId =  params['id'];
+
+            this._artistDetailService.getDetails(this.artistId).subscribe((t: any) => {
+
+	            this.data = t;
+	            this.artistName = this.data.name;
+
+	        }, (err) => {
+	            Helpers.setLoading(false);
+	            //TODO: Error handling 
+	        });
+        });
+    }
+
+
+}

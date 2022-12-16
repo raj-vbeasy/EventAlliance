@@ -1,0 +1,155 @@
+<div class="row" [style.display]="(step==1 ? 'block' : 'none')">
+	<div class="col-xl-8 offset-xl-2">
+		<div class="m-card-profile">
+			<div class="m-card-profile__pic">
+				<div class="m-card-profile__pic-wrapper">
+					<img [src]="eventDetails.profile_picture ? (environment.graphicsBaseUrl + 'event/' + eventDetails.profile_picture) : './assets/eventalliance/media/img/no-image.jpg'" alt="">
+				</div>
+			</div>
+			<div class="m-card-profile__details">
+				<strong>Hella Big Air Entertainment Preferences Mt. Bachelor 2019</strong>
+				<p>
+					Hella Big Air is back and it’s bigger than ever. We want your help choosing our headline entertainment for our 2019 Mt. Bachelor event.
+				</p>
+				<a data-dismiss="modal" data-toggle="modal" data-target="#takeSurvey" href="#" class="btn btn-accent m-btn m-btn--custom m-btn--bolder m-btn--uppercase">
+					TAKE SURVEY
+				</a>
+
+				<hr/>
+				<small>
+					Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+					Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis
+					aute irure dolor in reprehenderit in voluptate velit esse cillum
+				</small>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+
+<div class="row" [style.display]="(step==2 ? 'block' : 'none')">
+	<div class="col-xl-8 offset-xl-2">
+		<div class="m-card-profile">
+			<div class="m-card-profile__pic">
+				<div class="m-card-profile__pic-wrapper">
+					<img [src]="eventDetails.profile_picture ? (environment.graphicsBaseUrl + 'event/' + eventDetails.profile_picture) : './assets/eventalliance/media/img/no-image.jpg'" alt="">
+				</div>
+			</div>
+			<div class="m-card-profile__details">
+				<strong>{{ eventDetails.name }}</strong>
+				<p>
+					We will have a prize purse of 30k for each division: Snowboarding and Skiing. The riders will be sending it off a custom built, 80 footer. It’s something you wont want to miss. We’ll also have killer tunes, tons of games and mini competitions for badass swag, and of course… Beer.Entry is free, beer and food for purchase. <a href="https://10barrel.com/hellabigair/" target="_blank">https://10barrel.com/hellabigair/</a>
+				</p>
+
+
+			</div>
+
+		</div>
+	</div>
+</div>
+
+
+<div class="row" [style.display]="(step==3 ? 'block' : 'none')">
+	<div class="col-xl-8 offset-xl-2">
+		<div class="m-card-profile">
+			<img src="./assets/eventalliance/media/img/misc/demo-youtube.png" alt="" style="margin-left:150px;width:200px;height:150px;"
+			 class="img-responsive" />
+			<br/>
+			<br/>
+			<div style="margin-left:190px">
+				<button type="button" class="btn btn-outline-metal m-btn btn-sm m-btn--outline-2x uppercase">
+					NOPE
+				</button>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<button type="button" class="btn btn-outline-metal m-btn btn-sm m-btn--outline-2x uppercase">
+					YEP
+				</button>
+			</div>
+			<br/>
+			<div class="m-card-profile__details">
+				<strong>How to rate this artist</strong>
+				<p>
+					Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+					Uto laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+					cillum
+				</p>
+
+
+			</div>
+
+		</div>
+	</div>
+</div>
+
+
+<div class="row" [style.display]="(step==4 ? 'block' : 'none')">
+	<div class="col-xl-8 offset-xl-2">
+		<div class="m-card-profile">
+			<img src="./assets/eventalliance/media/img/misc/demo-youtube.png" style="width:520px;" class="img-responsive" />
+
+			<br/>
+
+		</div>
+	</div>
+</div>
+
+
+<div class="row" [style.display]="(step==5 ? 'block' : 'none')">
+	<div class="col-xl-8 offset-xl-2">
+		<strong>
+				The standard Lorem Ipsum passage, used since the
+				Ipsum passage, used since the
+
+				Ipsum passage, used since the
+
+			</strong>
+		<br/>
+		<br/>
+		<!-- <input type="text" class="form-control m-input m-input--square" [(ngModel)] = "surveyFormData.ip"  placeholder="Colorado BBQ Challenge"> -->
+		
+		<!-- <div *ngFor="let query of surveyQueries"> 
+			 <input type="radio" [(ngModel)] = "surveyFormData.question_option1_id" value="{{query.id}}"> {{query.answer}} 
+		</div> -->  
+		 <br/>
+		<input type="radio" name="gender" value="male" checked> Extrimely like
+		<br>
+		<input type="radio" name="gender" value="female"> Like
+		<br>
+		<input type="radio" name="gender" value="other"> Somewhat likely
+		<br>
+		<input type="radio" name="gender" value="other"> Un-likely
+		<br>
+		<input type="radio" name="gender" value="other"> Extrimely Un-likely
+		<br> 
+
+	</div>
+</div>
+
+
+<div class="row" [style.display]="(step==6 ? 'block' : 'none')">
+	<div class="col-xl-8 offset-xl-2">
+		<div class="m-card-profile">
+				<div class="m-card-profile__pic">
+						<div class="m-card-profile__pic-wrapper">
+							<img src="./assets/eventalliance/media/img/users/user4.jpg" alt="">
+						</div>
+					</div>
+
+
+			<br/>
+			<div class="m-card-profile__details">
+				<strong>You Rule ! thanks so much for your feedback</strong><br/>
+				<small>Lorem ipsum dolor sit amet, consectetur adipiscing elit</small><br/>
+				<p>
+					Lorem, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+					Uto laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+					cillum
+				</p>
+
+
+			</div>
+
+		</div>
+	</div>
+</div>

@@ -1,0 +1,72 @@
+<div class="modal-header">
+	<h5 class="modal-title" id="exampleModalLabel">{{title}}</h5>
+	<h5 class="modal-title" style="margin: 0 auto;">{{artistTitle}}</h5>
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		<span aria-hidden="true">×</span>
+	</button>
+</div>
+<div class="modal-body">
+	<div class="row">
+		<div class="col-xl-1">
+			<a (click)="prevStep()" *ngIf="this.step>=1" class="btn btn-clear" style="font-size: 260px;"><i class="fa fa-angle-left" style="font-size: 100px;"></i></a>
+			<a (click)="prevStep()" *ngIf="this.step<1" class="btn btn-clear" style="font-size: 260px;color: #ced0d0;cursor:not-allowed"><i class="fa fa-angle-left" style="font-size: 100px;font-color:#232323"></i></a>
+		</div>
+		<div class="col-xl-10" id="vedio_container">
+			<div class="m-card-profile">	
+				<div id="youtubeVideoContainer" class="m-widget19__pic m-portlet-fit--top m-portlet-fit--sides" style="min-height-: 286px">
+					<iframe width="620" *ngIf="videoUrl!=null" id="videoFrame" frameborder="0" height="331" style="padding:0 20px 0 0;" [src]="videoUrl"></iframe>							
+				</div>				
+				{{video.title}}
+				<table class="table">
+					<tbody>
+						<tr *ngFor="let artistVideo of surveyArtistVideos; let i = index;" [style.display]="(videoStep==i ? 'block' : 'none')" (click)="openVideoUrl(i)" style="cursor:pointer">
+							<td width='15%'>
+								<img src="{{ artistVideo.thumbnailsUrl }}" style=" height:70px; width:95px;" alt="" /> 
+							</td>
+							<td width='60%'> <strong>{{ artistVideo.videoTitle}}</strong>
+								<br/>
+								<small>{{ artistVideo.videoDescription }}</small>
+							</td>
+							<td width='20%'>
+								<a (click)="nextVideo($event)" *ngIf="videoStep < (videoCount-1)" class="btn btn-clear" >
+								  <b>NEXT TRACK</b>
+								</a>
+								<a (click)="nextVideo($event)" *ngIf="videoStep >= (videoCount-1)" style="cursor:not-allowed;color:#c3c3c3;" class="btn btn-clear" >
+								  <b>NEXT TRACK</b>
+								</a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<br/>
+			</div>
+		</div>
+		<div class="col-xl-1">
+			<a (click)="nextStep()" *ngIf="this.step < this.totalStepCount-1" class="btn btn-clear" style="font-size: 260px;"><i class="fa fa-angle-right" style="font-size: 100px;"></i></a>
+			<a (click)="nextStep()" *ngIf="this.step >= this.totalStepCount-1" class="btn btn-clear" style="font-size: 260px;color: #ced0d0;cursor:not-allowed;"><i class="fa fa-angle-right" style="font-size: 100px;"></i></a>
+		</div>
+	</div>
+</div>
+<div class="modal-footer">
+	<div style="width:50%;">
+		<div  *ngFor="let vote of memberVotesByArtistID;" style=" float:left;padding: 0 3px;">
+			<img *ngIf="vote.vote==null" class="member_img_vote_null" src={{vote.profile_img}} alt="">
+			<img *ngIf="vote.vote!=null" class="member_img_vote_{{vote.vote}}" src={{vote.profile_img}} alt="">
+		</div>
+		
+	</div>
+	<div style="width:50%; float:right;">
+		<div class="pull-right">
+			<div class="float-right">
+					<a (click)="vote(0)" class="btn btn-outline-danger m-btn--outline-2x m-btn--uppercase">
+						NOPE
+					</a>
+			</div>
+			<div class="float-right">
+				<a (click)="vote(1)" class="btn btn-outline-success m-btn m-btn--custom m-btn--bolder m-btn--uppercase">
+					YEP
+				</a>
+			</div>
+		</div>
+	</div>
+</div>

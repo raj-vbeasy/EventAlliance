@@ -1,0 +1,691 @@
+<!-- BEGIN: Subheader -->
+<div class="" appunwraptag="">
+	<div class="m-subheader-search" style="padding-bottom: 0;">
+		<div class="row">
+			<div class="col-md-1">
+				<img [src]="eventDetails.profile_picture ? (environment.graphicsBaseUrl + 'event/' + eventDetails.profile_picture) : './assets/eventalliance/media/img/no-image.jpg'" style="border-radius: 50%; height: 80px; width: 80px" alt="" />
+			</div>
+			<div class="col-md-10">
+				<p style="color: #fff;margin: 0;">
+					{{eventDetails.city}}
+				</p>
+				<h1 style="font-size: 2.8rem;font-weight: 400;color: #fff;margin: 0;">
+					{{eventDetails.name}}
+				</h1>
+				<span style="color:#fff;">{{ eventDetails.start_date | date:'shortDate' }} - {{ eventDetails.end_date | date:'shortDate' }}</span>&nbsp;
+				<span *ngIf="eventDetails.status==0" class="m-badge m-badge--primary m-badge--wide" style="background-color: #204d66; ">
+					Churn
+				</span>
+				<span *ngIf="eventDetails.status==1" class="m-badge m-badge--primary m-badge--wide" style="background-color: #204d66; ">
+					In-Review
+				</span>&nbsp;
+				<span *ngIf="eventDetails.status==2" class="m-badge m-badge--primary m-badge--wide" style="background-color: #204d66; ">
+					Quote Request
+				</span>&nbsp;
+				<span *ngIf="eventDetails.status==3" class="m-badge m-badge--primary m-badge--wide" style="background-color: #204d66; ">
+					Booked
+				</span>&nbsp;
+				<br/>
+				<!-- start menu -->
+
+				<ul class="nav nav-tabs  m-tabs-line  m-tabs-line--2x m-tabs-line--white" style="margin-bottom:-1px;" role="tablist">
+					<li class="nav-item m-tabs__item">
+						<a class="nav-link m-tabs__link" data-toggle="tab" routerLink="/event-summary/{{eventId}}" role="tab">
+							<small>Summary</small>
+						</a>
+					</li>
+
+					<li class="nav-item m-tabs__item">
+						<a class="nav-link m-tabs__link" data-toggle="tab" routerLink="/event-approval/{{eventId}}" role="tab">
+							<small>Approval</small>
+						</a>
+					</li>
+					<li class="nav-item m-tabs__item">
+						<a class="nav-link m-tabs__link active" data-toggle="tab" routerLink="/event-public-survey/{{eventId}}" role="tab">
+							<small>Public Survey</small>
+						</a>
+					</li>
+					<li class="nav-item m-tabs__item">
+						<a class="nav-link m-tabs__link " data-toggle="tab" routerLink="/event-picks/{{eventId}}" role="tab">
+							<small>Picks</small>
+						</a>
+					</li>
+
+				</ul>
+				<!-- end menu -->
+			</div>
+			<div class="col-md-1">
+				<div>   
+					 <i style="color: #fefefe99;font-size: 2.1rem;padding-left: 10px;" class="fa fa-edit"></i>    
+				</div>     
+
+				<button  class="btn m-btn--pill m-btn--air btn-custom-header-panel" type="button" style="top: 120px;width:50px;" >
+	                <i class="fa fa-play"></i>
+	            </button> 
+			</div>
+		</div>
+	</div>
+</div>
+<!-- END: Subheader -->
+
+
+
+
+<div class="m-content">
+	<div class="m-portlet">
+		<div class="m-portlet__body  m-portlet__body--no-padding">
+			<div class="row m-row--no-padding m-row--col-separator-xl">
+				<div class="col-xl-3">
+					<!--begin:: Widgets/Stats2-1 -->
+					<div style="padding: 30px 15px 10px 15px;">
+						<div class="row no-gutters">
+							<div class="col-md-8">
+								<h6 class="text-muted">
+									Complete Responses
+								</h6>
+								<span class="m-widget1__desc">
+									241 Opens
+								</span>
+							</div>
+							<div class="col-md-4 ">
+								<span class="float-right ">
+									<h2 style="font-size: 2.8rem;font-weight: 400;">										
+										 {{publicSurveyCount}}
+									</h2>
+								</span>
+							</div>
+						</div>
+					</div>
+					<!--end:: Widgets/Stats2-1 -->
+				</div>
+				<div class="col-xl-3">
+					<!--begin:: Widgets/Daily Sales-->
+					<div style="padding: 30px 15px 10px 15px;">
+						<div class="row no-gutters">
+							<div class="col-md-8">
+								<h6 class="text-muted">
+									Opt-Ins <a [attr.href]="surveyDataDownloadUrl" target="_blank"> <i class="fa fa-download"></i> </a>
+								</h6>
+								
+								<span class="m-widget1__desc">
+									31% Conversion Rate
+								</span>
+							</div>
+							<div class="col-md-4 ">
+								<span class="float-right ">
+									<h2 style="font-size: 2.8rem;font-weight: 400;">
+										 {{optInsCount}} 
+									</h2>
+								</span>
+							</div>
+						</div>
+					</div>
+					<!--end:: Widgets/Daily Sales-->
+				</div>
+				<div class="col-xl-6">
+					<!--begin:: Widgets/Profit Share-->
+					<div style="padding: 30px 15px 10px 15px;">
+						<div class="row no-gutters">
+							<div class="col-md-3">
+								<h6 class="text-muted">
+									Settings
+								</h6>
+								<span class="m-badge m-badge--primary m-badge--wide" style="background-color: #204d66; ">
+									Survey Open
+									<i class="fa fa-check"></i>
+								</span>
+							</div>
+							<div class="col-md-9 ">
+								<span class="m-widget1__desc">
+									<small>Public Survey Link</small>
+								</span>
+								<br/>
+								<form class="form-inline">
+									<label class="sr-only" for="inlineFormInput">Name</label>
+									<input type="text" class="form-control mb-2 mr-sm-2 mb-sm-0" id="inlineFormInput" value="http://eventalliance.org">
+									<button type="button" class="btn btn-outline-metal m-btn btn-sm m-btn--outline-2x">Copy</button>&nbsp;
+									<a data-toggle="modal" data-target="#eventReview" href="#" class="btn btn-outline-metal m-btn btn-sm m-btn--outline-2x">
+										Preview
+									</a>
+
+								</form>
+
+							</div>
+
+						</div>
+					</div>
+					<!--end:: Widgets/Profit Share-->
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Graph for attendance -->
+	<div class="row">
+		<div class="col-md-12">
+			<div class="m-portlet m-portlet--bordered-semi  m-portlet--fit ">
+				<div class="m-portlet__head">
+					<div class="m-portlet__head-caption">
+						<div class="m-portlet__head-title">
+							<h3 class="m-portlet__head-text">
+								Attendance
+							</h3>
+						</div>
+					</div>
+				</div>
+				<div class="m-portlet__body">
+
+					<div class="row">
+						<div class="col-md-6">
+							<div class="m-widget14">
+								<div class="m-widget14__header">
+									<span class="m-widget14__desc">
+										<strong>
+											Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the indust, when an unknown
+											printer took a galley of type.
+										</strong>
+									</span>
+								</div>
+								<div class="row  align-items-center">
+									<div class="col">
+										<div id="m_chart_profit_share" class="m-widget14__chart" style="height: 200px">
+											<canvas id="publicSurveyChart" style="height: 130px" height="130">70%</canvas>
+											<!-- <div class="m-widget14__stat">
+												70%
+											</div> -->
+										</div>
+									</div>
+									<!-- <div class="col">
+										<div class="m-widget14__legends">
+											<div class="m-widget14__legend">
+												<span class="m-widget14__legend-bullet m--bg-accent"></span>
+												<span class="m-widget14__legend-text">
+													37% Sport Tickets
+												</span>
+											</div>
+											<div class="m-widget14__legend">
+												<span class="m-widget14__legend-bullet m--bg-warning"></span>
+												<span class="m-widget14__legend-text">
+													47% Business Events
+												</span>
+											</div>
+											<div class="m-widget14__legend">
+												<span class="m-widget14__legend-bullet m--bg-brand"></span>
+												<span class="m-widget14__legend-text">
+													19% Others
+												</span>
+											</div>
+										</div>
+									</div> -->
+								</div>
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<div class="m-widget14">
+								<div class="m-widget14__header">
+									<span class="m-widget14__desc">
+										<strong>
+											Lorem Ipsum is simply dummy text of the printing and typesetting industry. an unknown printer took a galley.
+										</strong>
+									</span>
+								</div>
+								<div class="row  align-items-center">
+									<div class="col">
+										<div id="m_chart_profit_share_1" class="m-widget14__chart" style="height: 160px">
+											<div class="m-widget14__stat">
+												45
+											</div>
+										</div>
+									</div>
+									<div class="col">
+										<div class="m-widget14__legends">
+											<div class="m-widget14__legend">
+												<span class="m-widget14__legend-bullet m--bg-accent"></span>
+												<span class="m-widget14__legend-text">
+													37% Sport Tickets
+												</span>
+											</div>
+											<div class="m-widget14__legend">
+												<span class="m-widget14__legend-bullet m--bg-warning"></span>
+												<span class="m-widget14__legend-text">
+													47% Business Events
+												</span>
+											</div>
+											<div class="m-widget14__legend">
+												<span class="m-widget14__legend-bullet m--bg-brand"></span>
+												<span class="m-widget14__legend-text">
+													19% Others
+												</span>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<!-- End Graph for attendace-->
+
+	<!-- <div class="row">
+		<div class="col-md-6">
+			<div class="m-portlet m-portlet--bordered-semi  m-portlet--fit ">
+				<div class="m-portlet__head">
+					<div class="m-portlet__head-caption">
+						<div class="m-portlet__head-title">
+							<h3 class="m-portlet__head-text">
+								Top Artist
+							</h3>
+						</div>
+					</div>
+					<div class="m-portlet__head-tools">
+						<ul class="nav nav-pills nav-pills--brand m-nav-pills--align-right m-nav-pills--btn-pill m-nav-pills--btn-sm" role="tablist">
+							<li class="nav-item m-tabs__item">
+								<a class="nav-link m-tabs__link active" data-toggle="tab" href="#m_widget2_tab1_content" role="tab">
+									All
+								</a>
+							</li>
+							<li class="nav-item m-tabs__item">
+								<a class="nav-link m-tabs__link" data-toggle="tab" href="#m_widget2_tab2_content" role="tab">
+									Opt-Ins
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class="m-portlet__body">
+					<table class="table">
+						<thead>
+							<tr>
+								<th width='5%'>
+									Name
+								</th>
+								<th width="55$"></th>
+								<th width='40%'>
+									Approval
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let index of [0,1,2,4,5,6,7,8,9]">
+								<td>
+									<img src="./assets/eventalliance/media/img/users/user4.jpg" style="border-radius: 50%; height:50px; width:50px;" alt="" />
+								</td>
+								<td>
+									<strong>Fela Kuti</strong>
+									<br/>
+									<small>Rock, Jazz</small>
+								</td>
+								<td>
+									<span class="m-badge m-badge--success m-badge--wide">
+										91%(239)
+									</span>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+
+
+		<div class="col-md-6">
+			<div class="m-portlet m-portlet--bordered-semi  m-portlet--fit ">
+				<div class="m-portlet__head">
+					<div class="m-portlet__head-caption">
+						<div class="m-portlet__head-title">
+							<h3 class="m-portlet__head-text">
+								Opt-Ins (Email Subscribe)
+							</h3>
+						</div>
+					</div>
+				</div>
+				<div class="m-portlet__body">
+					<table class="table">
+						<thead>
+							<tr>
+								<th width='50%'>
+									Name
+								</th>
+								<th width='50%'>
+									Email
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let index of [0,1,2,4,5,6,7,8,9]">
+								<td>
+									<strong>Another Person</strong>
+								</td>
+								<td>
+
+									<small>another@email.com</small>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div> -->
+</div>
+
+<!-- modal start here -->
+<div class="modal fade" id="eventReview" role="dialog">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">&nbsp;</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">×</span>
+				</button>
+			</div>
+			<div class="modal-body">
+
+				<div class="row">
+					<div class="col-xl-8 offset-xl-2">
+						<div class="m-card-profile">
+							<div class="m-card-profile__pic">
+								<div class="m-card-profile__pic-wrapper">
+									<img [src]="eventDetails.profile_picture ? (environment.graphicsBaseUrl + 'event/' + eventDetails.profile_picture) : './assets/eventalliance/media/img/no-image.jpg'" alt="">
+								</div>
+							</div>
+							<div class="m-card-profile__details">
+								<strong>Hella Big Air Entertainment Preferences Mt. Bachelor 2019</strong>
+								<p>
+									Hella Big Air is back and it’s bigger than ever. We want your help choosing our headline entertainment for our 2019 Mt. Bachelor event.
+								</p>
+								<a data-dismiss="modal" data-toggle="modal" data-target="#takeSurvey" href="#" class="btn btn-accent m-btn m-btn--custom m-btn--bolder m-btn--uppercase">
+									TAKE SURVEY
+								</a>
+
+								<hr/>
+								<small>
+									Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+									Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis
+									aute irure dolor in reprehenderit in voluptate velit esse cillum
+								</small>
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+			<div class="modal-footer">
+				&nbsp;
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="takeSurvey" role="dialog">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="">About the Event</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">×</span>
+				</button>
+			</div>
+			<div class="modal-body">
+
+				<div class="row">
+					<div class="col-xl-8 offset-xl-2">
+						<div class="m-card-profile">
+							<div class="m-card-profile__pic">
+								<div class="m-card-profile__pic-wrapper">
+									<img [src]="eventDetails.profile_picture ? (environment.graphicsBaseUrl + 'event/' + eventDetails.profile_picture) : './assets/eventalliance/media/img/no-image.jpg'" alt="">
+								</div>
+							</div>
+							<div class="m-card-profile__details">
+								<strong>{{ eventDetails.name }}</strong>
+								<p>
+									We will have a prize purse of 30k for each division: Snowboarding and Skiing. The riders will be sending it off a custom built, 80 footer. It’s something you wont want to miss. We’ll also have killer tunes, tons of games and mini competitions for badass swag, and of course… Beer.Entry is free, beer and food for purchase. <a href="https://10barrel.com/hellabigair/" target="_blank">https://10barrel.com/hellabigair/</a>
+								</p>
+
+
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+			<div class="modal-footer">
+				<div class="float-left">
+					<a data-dismiss="modal" data-toggle="modal" data-target="#takeSurvey" href="#" class="btn btn-outline-accent m-btn--outline-2x m-btn--uppercase">
+						PREV
+					</a>
+				</div>
+				<div class="float-right">
+					<a data-dismiss="modal" data-toggle="modal" data-target="#instruction" href="#" class="btn btn-accent m-btn m-btn--custom m-btn--bolder m-btn--uppercase">
+						NEXT
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div class="modal fade" id="instruction" role="dialog">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="">Instruction</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">×</span>
+				</button>
+			</div>
+			<div class="modal-body">
+
+				<div class="row">
+					<div class="col-xl-8 offset-xl-2">
+						<div class="m-card-profile">
+							<img src="./assets/eventalliance/media/img/misc/demo-youtube.png" alt="" style="margin-left:150px;width:200px;height:150px;"
+							 class="img-responsive" />
+							<br/>
+							<br/>
+							<div style="margin-left:190px">
+								<button type="button" class="btn btn-outline-metal m-btn btn-sm m-btn--outline-2x uppercase">
+									NOPE
+								</button>
+								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+								<button type="button" class="btn btn-outline-metal m-btn btn-sm m-btn--outline-2x uppercase">
+									YEP
+								</button>
+							</div>
+							<br/>
+							<div class="m-card-profile__details">
+								<strong>How to rate this artist</strong>
+								<p>
+									Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+									Uto laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+									cillum
+								</p>
+
+
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+			<div class="modal-footer">
+				<div class="float-left">
+					<a data-dismiss="modal" data-toggle="modal" data-target="#instruction" href="#" class="btn btn-outline-accent m-btn--outline-2x m-btn--uppercase">
+						PREV
+					</a>
+				</div>
+				<div class="float-right">
+					<a data-dismiss="modal" data-toggle="modal" data-target="#youtubeNopYep" href="#" class="btn btn-accent m-btn m-btn--custom m-btn--bolder m-btn--uppercase">
+						NEXT
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+
+<div class="modal fade" id="youtubeNopYep" role="dialog">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="">Instruction</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">×</span>
+				</button>
+			</div>
+			<div class="modal-body">
+
+				<div class="row">
+					<div class="col-xl-8 offset-xl-2">
+						<div class="m-card-profile">
+							<img src="./assets/eventalliance/media/img/misc/demo-youtube.png" style="width:520px;" class="img-responsive" />
+
+							<br/>
+
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+			<div class="modal-footer">
+				<div class="float-left">
+					<a data-dismiss="modal" data-toggle="modal" data-target="#closeQuestion1" href="#" class="btn btn-outline-danger m-btn--outline-2x m-btn--uppercase">
+						NOPE
+					</a>
+				</div>
+				<div class="float-right">
+					<a data-dismiss="modal" data-toggle="modal" data-target="#closeQuestion1" href="#" class="btn btn-outline-success m-btn m-btn--custom m-btn--bolder m-btn--uppercase">
+						YEP
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+<div class="modal fade" id="closeQuestion1" role="dialog">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="">Close Question 1</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">×</span>
+				</button>
+			</div>
+			<div class="modal-body">
+
+				<div class="row">
+					<div class="col-xl-8 offset-xl-2">
+						<strong>
+								The standard Lorem Ipsum passage, used since the
+								Ipsum passage, used since the
+
+								Ipsum passage, used since the
+
+							</strong>
+						<br/>
+						<br/>
+						<input type="text" class="form-control m-input m-input--square" [(ngModel)] = "surveyFormData.ip"  placeholder="Colorado BBQ Challenge">
+						<!--
+						<div *ngFor="let query of surveyQueries"> 
+							 <input type="radio" [(ngModel)] = "surveyFormData.question_option1_id" value="{{query.id}}"> {{query.answer}} 
+						</div> --> 
+						<!-- <br/>
+						<input type="radio" name="gender" value="male" checked> Extrimely like
+						<br>
+						<input type="radio" name="gender" value="female"> Like
+						<br>
+						<input type="radio" name="gender" value="other"> Somewhat likely
+						<br>
+						<input type="radio" name="gender" value="other"> Un-likely
+						<br>
+						<input type="radio" name="gender" value="other"> Extrimely Un-likely
+						<br> -->
+
+					</div>
+				</div>
+
+
+			</div>
+			<div class="modal-footer">
+				<div class="float-left">
+					<a data-dismiss="modal" data-toggle="modal" data-target="#instruction" href="#" class="btn btn-outline-accent m-btn--outline-2x m-btn--uppercase">
+						PREV
+					</a>
+				</div>
+				<div class="float-right">
+					<a data-dismiss="modal" data-toggle="modal" data-target="#thankYou" href="#" class="btn btn-accent m-btn m-btn--custom m-btn--bolder m-btn--uppercase" (click)="saveSurvey(this.eventId)">
+						NEXT
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div class="modal fade" id="thankYou" role="dialog">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="">&nbsp;</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">×</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-xl-8 offset-xl-2">
+						<div class="m-card-profile">
+								<div class="m-card-profile__pic">
+										<div class="m-card-profile__pic-wrapper">
+											<img src="./assets/eventalliance/media/img/users/user4.jpg" alt="">
+										</div>
+									</div>
+
+
+							<br/>
+							<div class="m-card-profile__details">
+								<strong>You Rule ! thanks so much for your feedback</strong><br/>
+								<small>Lorem ipsum dolor sit amet, consectetur adipiscing elit</small><br/>
+								<p>
+									Lorem, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+									Uto laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+									cillum
+								</p>
+
+
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+			<div class="modal-footer">
+				&nbsp;
+			</div>
+		</div>
+	</div>
+</div>

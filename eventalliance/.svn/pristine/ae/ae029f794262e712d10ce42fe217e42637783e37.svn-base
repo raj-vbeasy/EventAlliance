@@ -1,0 +1,13 @@
+import { Injectable, ErrorHandler } from "@angular/core";
+import { Observable } from 'rxjs';
+
+@Injectable()
+export class ArtistVoting{
+	private _observer: any;
+
+    constructor() {
+    	Observable.create((observer) => {});
+    }
+
+    
+}

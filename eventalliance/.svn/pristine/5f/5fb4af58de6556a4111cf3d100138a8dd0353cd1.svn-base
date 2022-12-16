@@ -1,0 +1,68 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from "rxjs";
+import { environment } from '../../../../../environments/environment';
+//import { Team } from "./team";
+//import { TeamMember } from "./teammember";
+//import { Members } from './members'; // Get users
+import { WSResponse } from "../../../../ws-response";
+
+@Injectable()
+export class EventService {
+
+    constructor(private _httpClient: HttpClient) { 
+
+    }
+
+   /* loadTeams(): Observable<Array<Team>> {
+        return this._httpClient.get<Array<Team>>(environment.apiBaseUrl + "/teams");
+    }*/
+
+
+   /* getTeamDetailWithMembers(teamId: number): Observable<Team>{
+        return Observable.create((observer) => {
+            setTimeout(()=>{
+                var t = new Team();
+                //console.log('Test'+teamId);
+                //console.dir(t);
+                t.name = "Test";
+                t.id = 1;
+               // var member = new TeamMember();
+               // member.name = "Rakesh";
+                //member.role = "Admin";
+                //member.image = "http://www.sadcas.org/sites/default/files/focal_point_photo/icon-no-image.png";
+                //t.members.push(member);
+                observer.next(t);
+            }, 2000);
+        });
+    }*/
+
+
+   /* updateTeam(Data: Team): Observable<WSResponse>{
+        return this._httpClient.post<WSResponse>(environment.apiBaseUrl + "memberdetails.php", Data);
+    }
+
+
+    createTeam(Data: Team): Observable<WSResponse> {
+        console.log('Create Team');
+        console.log(Data);
+        return this._httpClient.post<WSResponse>(environment.apiBaseUrl + "teams", Data);
+    }
+
+    removeTeam(teamId: number): Observable<WSResponse> {
+        return this._httpClient.delete<WSResponse>(environment.apiBaseUrl + "teams/" + teamId);
+    }*/
+
+   /* getMembers(): Observable<Array<TeamMember>> {
+        //return this._httpClient.get<Array<TeamMember>>(environment.apiBaseUrl + "teams/members/");
+        return this._httpClient.get<Array<TeamMember>>(environment.apiBaseUrl + "jsonteamuser.php");
+    }
+
+    addMember(member: TeamMember): Observable<WSResponse> {
+        return this._httpClient.post<WSResponse>(environment.apiBaseUrl + "teams/members/", member);
+    }
+
+    removeMember(memberId: number): Observable<WSResponse> {
+        return this._httpClient.delete<WSResponse>(environment.apiBaseUrl + "teams/members/" + memberId);
+    }*/
+}

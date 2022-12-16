@@ -1,0 +1,33 @@
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Helpers } from '../../../../helpers';
+import { ScriptLoaderService } from '../../../../_services/script-loader.service';
+
+
+import { EventService } from './events.service';
+import { Event } from './event';
+import { EventDataTable  } from "./events.datatable";
+
+
+@Component({
+    selector: "app-events",
+    templateUrl: "./events.component.html",
+    encapsulation: ViewEncapsulation.None,
+    providers: [EventService, EventDataTable], 
+})
+export class EventsComponent implements OnInit {
+
+
+    constructor(private _script: ScriptLoaderService) {
+
+    }
+    ngOnInit() {
+
+    }
+    ngAfterViewInit() {
+        this._script.loadScripts(
+            'app-events', [
+                'assets/eventalliance/pages/events/events.datatable.js'
+            ]);
+    }
+
+}

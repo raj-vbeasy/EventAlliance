@@ -1,0 +1,303 @@
+<?php
+
+namespace App\Controller\Api;
+
+use App\Controller\ApiController;
+use Cake\ORM\TableRegistry;
+use Cake\Http\ServerRequest;
+
+class EventsController extends ApiController {
+
+    public function index() {
+        
+        $requestData = $this->request;
+        $query = $requestData->query;
+        $length = 0;
+        $start = 1;
+        $pagination = array_key_exists("pagination", $query) ? $query["pagination"] : null;
+        
+        if(!empty($pagination)) {
+            $length = empty($pagination) ? 0 : $pagination["perpage"];
+            $start = empty($pagination) ? 1 : $pagination["page"];
+        }
+        
+        $arrEvent = $this->getEvents($requestData,$length,$start);
+        
+        if($length == 0){
+            $length = count($arrEvent["data"]);
+        }
+        
+        $arrMeta['page'] = $start;
+        $arrMeta['pages'] = ceil($arrEvent["total"] / $length);
+        $arrMeta['perpage'] = $length;
+        $arrMeta['total'] = $arrEvent["total"];
+        
+        $meta = $arrMeta;
+        $data = $arrEvent["data"];
+
+        $this->set(compact('meta', 'data'));
+        $this->set('_serialize', ['meta', 'data']);
+    }
+
+    public function addArtist(){
+        $requestData = $this->request->data();
+        $eventId = $requestData["eventId"];
+        $artistId = $requestData["artistId"];
+
+        $tblEventArtists = TableRegistry::get("EventArtists");
+
+        $existingRecord = $tblEventArtists->find()->where(["artist_id" => $artistId, "event_id" => $eventId])->first();
+
+        if(empty($existingRecord)){
+            $eventArtistEntity = $tblEventArtists->newEntity();
+            $eventArtistEntity->set("artist_id", $artistId);
+            $eventArtistEntity->set("event_id", $eventId);
+            $tblEventArtists->save($eventArtistEntity);
+
+            if(empty($eventArtistEntity->errors())){
+                $this->set([
+                    "status" => true,
+                    "id" => $eventArtistEntity->id, 
+                    "message" => "Record has been creaated Successfully",
+                    '_serialize' => ['status', 'id', 'message']
+                ]);
+            } else {
+                 $this->set([
+                    "status" => false,
+                    "id" => 0, 
+                    "message" => "There was an error during database transaction",
+                    '_serialize' => ['status', 'id', 'message']
+                ]);
+            }
+        } else {
+            $this->set([
+                "status" => false,
+                "id" => 0, 
+                "message" => "This artist already exists in the event",
+                '_serialize' => ['status', 'id', 'message']
+            ]);
+        }
+    }
+	
+	public function getOne(){	
+		$tblEvents = TableRegistry::get("Events");
+		$query = $tblEvents->find()
+						->contain([
+                            "EventDemographics"=>["Demographics"],
+                            "Budgets",
+                            "ArtistNumbers",
+                            "EventGenres" => ["Genres"],
+                            "Teams",
+                            "EventArtists" => ["Artists"]
+                        ])
+						->where(["Events.id" => $this->request->params["id"], "Events.is_deleted" => 0]);
+		
+		$eventEntity = $query->first();
+
+        $this->set([
+            'event' => $eventEntity ? $eventEntity->toArray() : null,
+            '_serialize' => ['event']
+        ]);
+	}
+
+    public function getEvents($requestData = null, $length=0, $start=1) {
+
+        $tblEvents = TableRegistry::get("Events");
+        $arrWhere = ['Events.is_deleted' => 0];
+        if (!empty($requestData['name'])) {
+            $arrWhere = ['Events.name' => $requestData['name']];
+        }
+
+		$total = 0;
+		
+        // Prepare the paged query
+        $arrEventCount = $tblEvents->find('all')->where($arrWhere);
+
+        $query = $tblEvents->find('all')
+                ->contain(["EventDemographics","Budgets","Teams"=>["TeamMembers"=>["Users"]]])
+				->order(["Events.id" => "DESC"])
+                ->where($arrWhere);
+        
+        if (!empty($length)) {
+            $total = $query->count();
+            $query->limit($length);
+            $query->page($start);
+        }
+
+        $arrEvent = $query->hydrate(false)
+                ->toArray();
+        if(empty($length)){
+            $total = count($arrEvent);
+        }
+
+        return ["total" => $total, "data" => $arrEvent];
+    }
+
+    public function delete() {
+        $return = 'ERROR';
+        $message = 'There is a problem of deleting request data.';
+        $requestData = $this->request->params;
+        $tblEvents = TableRegistry::get("Events");
+        $eventEntity = $tblEvents->get($requestData['id']);
+        $eventEntity->set('is_deleted', 1);
+        $result = $tblEvents->save($eventEntity);
+        
+        
+        if (!empty($result)) {
+            $return = true;
+	    $id = $result;
+            $message = 'Successfully deleted the data.';
+        } else {
+            $return = false;
+            $id = 0;
+            $message = 'There is a problem of deleting request data.';
+        }
+        $this->set([
+            'response' => ["status" => $return, "id" => $id, "message" => $message],
+            '_serialize' => ['response']
+        ]);
+        
+    }
+
+    public function create() {
+        $requestData = $this->request->getData();
+        $result = $this->save($requestData);
+        $message = [];
+                       
+        if (!empty($result)) {
+            $return = true;
+	    $id = $result;
+            $message = 'Successfully save request data.';
+        } else {
+            $return = false;
+            $id = 0;
+            $message = 'There is a problem of saving request data.';
+        }
+        $this->set([
+            "status" => $return,
+			"id" => $id, 
+			"message" => $message,
+            '_serialize' => ['status', 'id', 'message']
+        ]);
+        
+        
+    }
+
+    public function save($eventData) {
+        $tblEvents = TableRegistry::get("Events");
+        $id = $eventData['id'];
+        if (empty($id)) {
+            $eventEntity = $tblEvents->newEntity();
+            $eventEntity->set('created_at', date('Y-m-d'));
+        } else {
+            $eventEntity = $tblEvents->get($id);
+            $eventEntity->set('updated_at', date('Y-m-d'));
+        }
+		
+		$start_date = explode("T", $eventData['start_date']);
+		$end_date = explode("T", $eventData['end_date']);
+		
+        $eventEntity->set('team_id', 43);
+		$eventEntity->set('status', 1);
+		$eventEntity->set('is_deleted', 0);
+		$eventEntity->set('name', $eventData['name']);
+        $eventEntity->set('start_date', $start_date[0]);
+        $eventEntity->set('end_date', $end_date[0]);
+        $eventEntity->set('profile_picture', $eventData['profile_picture']);
+        $eventEntity->set('description', $eventData['description']);
+        $eventEntity->set('venue_name', $eventData['venue_name']);
+        $eventEntity->set('address_line_1', $eventData['address_line_1']);
+        $eventEntity->set('address_line_2', $eventData['address_line_2']);
+        $eventEntity->set('public_survey_status', $eventData['public_survey_status']);
+        $eventEntity->set('public_survey_title', $eventData['public_survey_title']);
+        $eventEntity->set('city', $eventData['city']);
+        $eventEntity->set('state', $eventData['state']);
+        $eventEntity->set('zip', $eventData['zip']);
+        $eventEntity->set('budget_id', $eventData['budget_id']);
+        $eventEntity->set('number_of_artist', $eventData['number_of_artist']);
+        $eventEntity->set('mode', $eventData['mode']);
+        $eventEntity->set('url', $eventData['url']);
+        $eventEntity->set('welcome_message', $eventData['welcome_message']);
+        $eventEntity->set('legal_disclaimer', $eventData['legal_disclaimer']);
+        $eventEntity->set('event_description', $eventData['event_description']);
+        $eventEntity->set('opt_in', $eventData['opt_in']);
+        $eventEntity->set('opt_in_message', $eventData['opt_in_message']);
+        $eventEntity->set('thanks_message', $eventData['thanks_message']);
+        $eventEntity->set('review_enable', $eventData['review_enable']);
+        
+        $tblEvents->save($eventEntity);
+
+        if (empty($eventEntity->errors())) {
+            return $eventEntity->id;
+        } else {
+            return false;
+        }
+        
+    }
+
+    public function update() {
+        $requestData = $this->request->getData();
+
+        $result = $this->save($requestData);
+        $message = [];
+
+        if (!empty($result)) {
+            $return = true;
+			$id = $result;
+            $message = 'Successfully save request data.';
+        } else {
+            $return = false;
+	    $id = 0;
+            $message = 'There is a problem of saving request data.';
+        }
+        $this->set([
+            "status" => $return, 
+			"id" => $id, 
+			"message" => $message,
+            '_serialize' => ['status', 'id', 'message']
+        ]);
+    }
+    
+    public function budget() {
+        
+        error_reporting(0);
+        $requestData = $this->request;
+        $tblBudget = TableRegistry::get("Budgets");
+        $arrWhere = ['Budgets.is_deleted' => 0];
+        
+        // Prepare the paged query
+        $arrBudget = $tblBudget->find('all')
+                
+               ->where($arrWhere)
+                ->hydrate(false)
+                ->toArray();
+      
+        $data = $arrBudget;        
+        
+        $this->set(compact('data'));
+        $this->set('_serialize', ['data']);
+        
+    }
+    
+    public function artistNumber() {
+        
+        error_reporting(0);
+        $requestData = $this->request;
+        $tblArtistNumbers = TableRegistry::get("ArtistNumbers");
+        $arrWhere = ['ArtistNumbers.is_deleted' => 0];
+        
+        // Prepare the paged query
+        $arrArtistNumbers = $tblArtistNumbers->find('all')
+                
+               ->where($arrWhere)
+                ->hydrate(false)
+                ->toArray();
+      
+        $data = $arrArtistNumbers;        
+        
+        $this->set(compact('data'));
+        $this->set('_serialize', ['data']);
+        
+    }
+
+}

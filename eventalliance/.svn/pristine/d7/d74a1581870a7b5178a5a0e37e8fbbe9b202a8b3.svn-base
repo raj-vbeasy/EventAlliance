@@ -1,0 +1,47 @@
+<?php
+
+namespace App\Controller\Api;
+
+use App\Controller\ApiController;
+use Cake\ORM\TableRegistry;
+
+class TeamsController extends ApiController {
+
+    public function index() {
+        $requestData = $this->request;
+        $arrTeam = $this->getTeams($requestData);
+        $this->set([
+            'response' => $arrTeam,
+            '_serialize' => ['response']
+        ]);
+      
+    }
+
+
+    public function getTeams($requestData) {
+
+      
+        $length = empty($requestData->param('records')) ? 10 : $requestData->param('records');
+
+        $tblTeams = TableRegistry::get("Teams");
+
+        $arrWhere = ['Teams.is_deleted'=>0];
+        if (!empty($requestData['name'])) {
+            $arrWhere = ['Teams.name' => $requestData['name']];
+        }
+        if (!empty($requestData['role_name'])) {
+            $arrWhere = ['TeamRoles.role_name' => $requestData['role_name']];
+        }
+      
+
+        // Prepare the paged query
+        $arrTeam = $tblTeams->find('all')
+                ->contain(['TeamRoles'])
+                ->where($arrWhere)
+                ->hydrate(false)
+                ->limit($length)
+                ->page($requestData->param('page'))
+                ->toArray();
+        return $arrTeam;
+    }
+}

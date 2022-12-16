@@ -1,0 +1,133 @@
+<?php
+
+use Cake\Core\Plugin;
+use Cake\Routing\RouteBuilder;
+use Cake\Routing\Router;
+use Cake\Routing\Route\DashedRoute;
+
+Router::defaultRouteClass(DashedRoute::class);
+
+Router::scope('/', function (RouteBuilder $routes) {
+    $routes->connect('/', ['controller' => 'Logins', 'action' => 'index']);
+    $routes->fallbacks(DashedRoute::class);
+});
+
+Router::prefix('api', function ($routes) {
+    $routes->extensions(['json']);
+    
+    // User api route do below
+    $routes->resources('Users', [
+        'map' => [
+            '/search/:page/:records/*' => [
+                'action' => 'index',
+                'method' => 'GET'
+            ],
+            '/delete/:id' => [
+                'action' => 'delete',
+                'method' => 'DELETE'
+            ],
+            '/create' => [
+                'action' => 'create',
+                'method' => 'POST'
+            ],
+            '/update/:id' => [
+                'action' => 'update',
+                'method' => 'PUT' 
+            ],
+        ]
+    ]);
+    // Teams  api route do below
+    $routes->resources('Teams', [
+        'map' => [
+            '/search/:page/:records/*' => [
+                'action' => 'index',
+                'method' => 'GET'
+            ],
+            '/delete/:id' => [
+                'action' => 'delete',
+                'method' => 'DELETE'
+            ],
+            '/create' => [
+                'action' => 'create',
+                'method' => 'POST'
+            ],
+            '/update/:id' => [
+                'action' => 'update',
+                'method' => 'PUT' 
+            ],
+        ]
+    ]);
+
+    // Team Member api route do below
+    $routes->resources('Teams/Members', [
+        'map' => [
+            '/search/:page/:records/*' => [
+                'action' => 'index',
+                'method' => 'GET'
+            ],
+            '/delete/:id' => [
+                'action' => 'delete',
+                'method' => 'DELETE'
+            ],
+            '/create' => [
+                'action' => 'create',
+                'method' => 'POST'
+            ],
+            '/update/:id' => [
+                'action' => 'update',
+                'method' => 'PUT' 
+            ],
+        ]
+    ]);
+
+
+    // Event api route do below
+    $routes->resources('Events', [
+        'map' => [
+            '/search/:page/:records/*' => [
+                'action' => 'index',
+                'method' => 'GET'
+            ],
+            '/delete/:id' => [
+                'action' => 'delete',
+                'method' => 'DELETE'
+            ],
+            '/create' => [
+                'action' => 'create',
+                'method' => 'POST'
+            ],
+            '/update/:id' => [
+                'action' => 'update',
+                'method' => 'PUT' 
+            ],
+        ]
+    ]);
+
+    // Artist api route do below
+    $routes->resources('Artists', [
+        'map' => [
+            '/search/:page/:records/*' => [
+                'action' => 'index',
+                'method' => 'GET'
+            ],
+            '/delete/:id' => [
+                'action' => 'delete',
+                'method' => 'DELETE'
+            ],
+            '/create' => [
+                'action' => 'create',
+                'method' => 'POST'
+            ],
+            '/update/:id' => [
+                'action' => 'update',
+                'method' => 'PUT' 
+            ],
+        ]
+    ]);
+
+
+
+
+});
+
+Plugin::routes();

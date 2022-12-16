@@ -1,0 +1,18 @@
+import { Genres } from "./genres";
+export class ArtistGenre {
+    id: number;
+    artistId: number;
+    genreId: Array<Genres>;
+    
+
+    constructor() { 
+    	this.reset();
+    }
+
+    public reset(){
+    	this.id = 0;
+    	this.artistId = 0;
+    	this.genreId = [];
+    	
+    }
+}

@@ -1,0 +1,32 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from "rxjs";
+import { environment } from '../../../../../environments/environment';
+import { WSResponse } from "../../../../ws-response";
+import "rxjs/add/operator/map";
+
+@Injectable()
+export class ArtistDetails {
+
+    constructor(private _httpClient: HttpClient) { 
+
+    }
+
+    getDetails(artistId: number): Observable<any> {
+       
+       return this._httpClient.get<any>(environment.apiBaseUrl + "artists/"+artistId+"/getDetails.json").map((response) : Array<any> => {
+       //var _artistGet:Array<any>;
+       // for(var i=0;i<response.data.artist_genres;i++){
+
+        
+
+       // }
+        
+        return response.data;
+    });
+
+
+    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+    
+   
+}

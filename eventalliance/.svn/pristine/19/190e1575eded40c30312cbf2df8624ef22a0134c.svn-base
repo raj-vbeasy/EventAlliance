@@ -1,0 +1,88 @@
+import { Component, OnInit, ViewEncapsulation, AfterViewInit } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl, SafeUrl} from '@angular/platform-browser';
+import { Helpers } from '../../../../helpers';
+import {Router, ActivatedRoute, Params} from '@angular/router';
+import { ArtistDetails} from './artistdetails.service';
+import { Observable } from 'rxjs';
+
+import { YouTubeArtist } from "./youtubeartist";
+
+
+    
+@Component({
+    selector: "app-artist-details",
+    templateUrl: "./artist-details.component.html",
+    encapsulation: ViewEncapsulation.None,
+    providers: [ArtistDetails]
+    
+})
+
+export class ArtistDetailsComponent implements OnInit, AfterViewInit {
+
+    public data:any;
+   // public formData: YouTubeArtist;
+    public artistVideos: Array<YouTubeArtist>
+
+    public firstVideoUrl: string;
+
+
+    
+    constructor(private activatedRoute: ActivatedRoute, public _artistDetails: ArtistDetails) {
+
+    }
+    ngOnInit() {
+        
+            //Object.assign(this.formData, _eventList[i]);
+
+
+
+        Helpers.setLoading(true);
+        this.activatedRoute.params.subscribe((params: Params) => {
+            let artistId = params['id']; // artist ID
+            this.getArtistDetail(artistId);
+            this. getYouTubeArtist(artistId);
+            Helpers.setLoading(false);
+           
+        });
+
+       
+        
+       
+    }
+
+    getArtistDetail(artistId:number){
+        this._artistDetails.getDetails(artistId).subscribe((t:any)=>{    
+            this.data = t;   
+            //console.log(this.data);        
+        }, (err)=>{
+            Helpers.setLoading(false);
+            //TODO: Error handling 
+        });
+    }
+    ngAfterViewInit() {        
+
+    }
+
+    getYouTubeArtist(artistId:number) {
+        
+         this._artistDetails.getYouTubeArtistByChannel(artistId).subscribe((data: Array<YouTubeArtist>) => {       
+           
+            
+            this.artistVideos = data;
+            this.firstVideoUrl = 'http://www.youtube.com/embed/'+ data[0].videoId;
+
+            console.log(data[0].videoId);
+           
+        }, (err) => {
+            console.log(err);
+
+        });
+    }
+
+    openVideoUrl(value) {       
+        var videoUrl = 'http://www.youtube.com/embed/'+value;
+        jQuery("#videoFrame").attr("src", videoUrl);
+    }
+
+
+}

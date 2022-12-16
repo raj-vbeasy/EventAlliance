@@ -1,0 +1,92 @@
+<?php
+
+namespace App\Vendor;
+
+use Cake\ORM\TableRegistry;
+use Cake\Controller\Controller;
+use Cake\Log\Log;
+
+class Team {
+    public $id;
+    public $name;
+    public $photo;
+    public $owner;
+    public $representatives;
+    public $members;
+
+    public function __construct() {
+        $this->clear();
+    }
+
+    protected function clear() {
+        $this->members = [];
+        $this->id=0;
+        $this->name = "";
+        $this->owner = null;
+        $this->representative = null;
+    }
+   
+
+    public static function transform($data) {
+        $objTeam = new Team();
+        $objTeam->id = $data["id"];
+        $objTeam->name = $data["name"];
+        $objTeam->photo = $data["photo"];
+        
+        foreach ($data["team_members"] as $teamMember) {
+            $objTeamMember = new TeamMember();
+            $objTeamMember->id = $teamMember["id"];
+            $objTeamMember->image = $teamMember["user"]["profile_pic"];
+            $objTeamMember->userId = $teamMember["user"]["id"];
+            $objTeamMember->roleId = $teamMember["team_role"]["id"];
+            $objTeamMember->role = $teamMember["team_role"]["role_name"];
+            array_push($this->members, $objTeamMember);
+
+            if($teamMember["team_role"]["id"] == 1){
+                $objTeam->owner = $objTeamMember;
+            }else if($teamMember["team_role"]["id"] == 3){
+                $objTeam->representative = $objTeamMember;
+            }
+        }
+        
+        return $objTeam;
+    }
+    
+    public function saveTeam($TeamData) {
+         $tblTeams = TableRegistry::get("Teams");
+        $id = $this->request->param('id');
+        if (empty($id)) {
+            $userEntity = $tblUsers->newEntity();
+        } else {
+            $userEntity = $tblUsers->get($id);
+        }
+        $userEntity->set('email', $userData['email']);
+        $userEntity->set('login_password', $userData['login_password']);
+        $userEntity->set('first_name', $userData['first_name']);
+        $userEntity->set('last_name', $userData['last_name']);
+        $userEntity->set('phone', $userData['phone']);
+        $userEntity->set('address', $userData['address']);
+        $userEntity->set('city', $userData['city']);
+        $userEntity->set('zipcode', $userData['zipcode']);
+        $tblUsers->save($userEntity);
+
+        if (empty($userEntity->errors())) {
+            return $userEntity->id;
+        } else {
+            return false;
+        }
+    }
+
+    
+
+}
+
+class TeamMember {
+
+    public $id;
+    public $userId;
+    public $memberName;
+    public $image;
+    public $roleId;
+    public $role;
+}

@@ -1,0 +1,70 @@
+import { Component, OnInit, ViewEncapsulation, AfterViewInit } from '@angular/core';
+import { Helpers } from '../../../../helpers';
+import { ScriptLoaderService } from '../../../../_services/script-loader.service';
+import { UsersDataTable } from './users.datatable';
+
+declare var jQuery: any;
+
+@Component({
+    selector: "app-users",
+    templateUrl: "./users.component.html",
+    encapsulation: ViewEncapsulation.None,
+    providers: [UsersDataTable]
+})
+export class UsersComponent implements OnInit, AfterViewInit {
+
+    constructor(private _script: ScriptLoaderService, private _usersDataTable: UsersDataTable) {
+
+    }
+
+    public TableClick($e: any) {
+        var target = $e.target || $e.srcElement || $e.currentTarget;
+
+        if (jQuery(target).hasClass("modal-activator")) {
+            this._getUserDetails(jQuery(target).data("id"));
+            $e.preventDefault();
+        } else {
+            var parent = jQuery(target).parent();
+            if (parent.hasClass("modal-activator")) {
+                this._getUserDetails(parent.data("id"));
+                $e.preventDefault();
+            }
+        }
+
+        // For Delete option
+        if (jQuery(target).hasClass("btn-delete")) {
+            console.log(jQuery(target).data("id"));
+            //TODO: Call delete webservice;
+            $e.preventDefault();
+        } else {
+            var parent = jQuery(target).parent();
+            if (parent.hasClass("btn-delete")) {
+                console.log(parent.data("id"));
+                //TODO: Call delete webservice;
+                $e.preventDefault();
+            }
+        }
+    }
+
+    ngOnInit() {
+
+    }
+
+    public openCreateUserModal(){
+        jQuery("#editUser").modal("show");
+    }
+
+    private _getUserDetails(userId: number){
+        console.log(userId);
+        jQuery("#editUser").modal("show");
+    }
+
+    ngAfterViewInit() {      
+        this._usersDataTable.load();
+         //Initialize the bootstrap modals;
+        jQuery("#editUser").modal({ show: false }).on("hidden.bs.modal", (e) => {
+            
+        });
+    }
+
+}

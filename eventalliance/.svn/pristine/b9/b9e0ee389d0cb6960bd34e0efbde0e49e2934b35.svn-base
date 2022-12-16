@@ -1,0 +1,67 @@
+import { Component, OnInit, ViewEncapsulation, AfterViewInit } from '@angular/core';
+import { ActivatedRoute, Params } from '@angular/router';
+import { Helpers } from '../../../../helpers';
+import { ScriptLoaderService } from '../../../../_services/script-loader.service';
+import { ArtistDetails } from '../artist-details/artistdetails.service';
+import { WSResponse } from "../../../../ws-response";
+
+@Component({
+    selector: "app-about-artist",
+    templateUrl: "./about-artist.component.html",
+    encapsulation: ViewEncapsulation.None,
+    providers: [ArtistDetails]
+})
+
+export class AboutArtistComponent implements OnInit, AfterViewInit {
+    public artistId: number;
+    public artistName: string;
+    public data: any = { artist_genres: [], budget: { amount: 0 } };
+
+    public channelDescription: string;
+     public currentTeamId: any;
+
+    constructor(private activatedRoute: ActivatedRoute, private _artistDetailService: ArtistDetails) {
+
+    }
+    ngOnInit() {
+
+    }
+
+    addArtistButton(teamId: number) {
+        this._artistDetailService.addArtist(teamId, this.artistId).subscribe((response: WSResponse) => {
+            if (response.status === true) {
+                alert("The artist has been added to the event");
+            } else {
+                alert("There was an error processing your request\n\nDetails: " + response.message);
+            }
+        }, (err) => {
+            alert("There was an error communicating with the server");
+        });
+    }
+
+    ngAfterViewInit() {
+        // Get Current User information from local storage
+        this.currentTeamId = null;
+        let currentUser  = JSON.parse(localStorage.getItem('currentUser'));
+        if(currentUser.team_members[0]) {
+            this.currentTeamId = currentUser.team_members[0].team_id;
+        }
+
+        this.activatedRoute.params.subscribe((params: Params) => {
+            this.artistId = params['id'];
+
+            this._artistDetailService.getDetails(this.artistId).subscribe((t: any) => {
+
+                this.data = t;
+                this.artistName = this.data.name;
+                this.channelDescription = this.data.artist_channels[0].channel["channel_description"];
+
+            }, (err) => {
+                Helpers.setLoading(false);
+                //TODO: Error handling 
+            });
+        });
+    }
+
+
+}

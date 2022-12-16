@@ -1,0 +1,59 @@
+import { Component, Input, Output, ViewEncapsulation, AfterViewInit, DoCheck, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+
+@Component({
+    selector: "public-survey-component",
+    templateUrl: "./public-survey.component.html",
+    encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush
+})
+
+export class PublicSurveyComponent implements AfterViewInit, DoCheck {
+	public eventDetails:any = {};
+
+	private _oldEventId:number;
+	private _oldStep: number = 1;
+	private _totalStepCount:number = 6;
+
+	@Input() step:number;
+	@Input() eventId:number;
+	@Output() onStepChange: EventEmitter<number> = new EventEmitter<number>();
+	@Output() onLastStep: EventEmitter<void> = new EventEmitter<void>();
+	@Output() onFirstStep: EventEmitter<void> = new EventEmitter<void>();
+
+	constructor (private cd: ChangeDetectorRef){
+
+	}
+
+
+	ngDoCheck(){
+		if(this._oldEventId != this.eventId){
+			this._oldEventId = this.eventId;
+			this._getEventSurvey();
+		}
+
+		if(this._oldStep != this.step){
+			this._oldStep = this.step;
+			console.log("Change in Step detected. New value of step =>" + this.step);
+			this.onStepChange.emit(this.step);
+			if(this.step == this._totalStepCount){
+				this.onLastStep.emit();
+			}
+			if(this.step == 1){
+				this.onFirstStep.emit();
+			} 
+			this.cd.markForCheck();
+		}
+	}
+
+	ngAfterViewInit(){
+        this._getEventSurvey();
+    }
+
+    private _getEventSurvey(){
+    	if(this.eventId){
+    		console.log("About to call API. Event ID =>" + this.eventId);
+    		//TODO: Call API to get the event survey form
+    		//TODO: After getting result from API, call this.cd.markForCheck();
+    	}
+    }
+}

@@ -1,0 +1,144 @@
+<?php
+
+namespace App\Controller\Api;
+
+use App\Controller\ApiController;
+use Cake\ORM\TableRegistry;
+
+
+class ArtistsController extends ApiController {
+
+    public function initialize() {
+        parent::initialize();
+    }
+
+    public function index() {
+        error_reporting(0);
+        $requestData = $this->request; 
+        $pagination = $requestData->query["pagination"];
+        $length = empty($pagination) ? 10 : $pagination["perpage"];
+        $start = empty($pagination) ? 1 : $pagination["page"];
+        
+        $arrArtist = $this->getArtists($requestData,$length,$start);
+        
+        $arrMeta['page'] = $start;
+        $arrMeta['pages'] = ceil($arrArtist["total"] / $length);
+        $arrMeta['perpage'] = $length;
+        $arrMeta['total'] = $arrArtist["total"];
+        
+        $meta = $arrMeta;
+        $data = $arrArtist["data"];        
+        
+        $this->set(compact('meta', 'data'));
+        $this->set('_serialize', ['meta', 'data']);
+    }
+    
+    
+    public function getDetails () { 
+   $requestData = $this->request->params; 
+  // echo "<pre/>";print_r($requestData['id']);exit;
+      $tblArtists = TableRegistry::get("Artists");
+      $data  = $tblArtists->find('all')
+              ->contain(['ArtistGenres'=>['Genres'],'Budgets','ArtistChannels'=>['Channels']])
+              ->hydrate(false)
+              ->where(['Artists.id'=>$requestData['id']])
+              ->first();
+ //  $data = $requestData['params']['id'];
+        $this->set(compact('data'));
+        $this->set('_serialize', ['data']);
+     //   return $id;
+    }
+    
+    public function getArtists($requestData,$length,$start) {
+        
+        $tblArtists = TableRegistry::get("Artists");
+        $arrWhere = ['Artists.is_deleted' => 0];
+        if (!empty($requestData['name'])) {
+            $arrWhere = ['Artists.name' => $requestData['name']];
+        }
+          
+        // Prepare the paged query
+        $arrArtistCount = $tblArtists->find('all')->where($arrWhere);
+        
+        $query = $tblArtists->find('all')
+                ->contain(['ArtistGenres'=>['Genres'],'Budgets','ArtistChannels'=>['Channels']])
+                ->where($arrWhere);
+        
+        $total = $query->count();
+        
+        $arrArtist = $query->limit($length)
+                ->page($start)
+                ->hydrate(false)
+                ->toArray();
+        
+        return ["total" => $total, "data" => $arrArtist];
+        
+    }
+
+    public function delete() {
+        $return = 'ERROR';
+        $message = 'There is a problem of deleting request data.';
+        $deleteId = $this->request->param('id');
+        $tblArtists = TableRegistry::get("Artists");
+        $artistEntity = $tblArtists->get($deleteId);
+        $artistEntity->set('is_deleted', 1);
+        $tblArtists->save($artistEntity);
+        if ($artistEntity->errors()) {
+            $return = 'SUCCESS';
+            $message = 'Sucessfully delete the data.';
+        }
+        $this->set([
+            'response' => ["status" => $return, "message" => $message],
+            '_serialize' => ['response']
+        ]);
+    }
+
+    public function create() {
+        $requestData = $this->request->getData();
+        $objTeam = new Team();
+        $objTeam->saveTeam($requestData);
+        
+        $result = $this->save($requestData);
+        $message = [];
+        if (!empty($result)) {
+            $return = 'SUCCESS';
+            $message['id'] = $result;
+            $message['message'] = 'Successfully save request data.';
+        } else {
+            $return = 'ERROR';
+            $message['message'] = 'There is a problem of saving request data.';
+        }
+
+        $this->set([
+            'response' => ["status" => $return, "message" => $message],
+            '_serialize' => ['response']
+        ]);
+    }
+
+    
+    public function update() {
+        echo "hello";
+        exit;
+        $requestData = $this->request->getData();
+        $result = $this->save($requestData);
+        $message = [];
+
+        if (!empty($result)) {
+            $return = 'SUCCESS';
+            $message['id'] = $result;
+            $message['message'] = 'Successfully save request data.';
+        } else {
+            $return = 'ERROR';
+            $message['message'] = 'There is a problem of saving request data.';
+        }
+        $this->set([
+            'response' => ["status" => $return, "message" => $message],
+            '_serialize' => ['response']
+        ]);
+    }
+
+    
+    
+    
+
+}

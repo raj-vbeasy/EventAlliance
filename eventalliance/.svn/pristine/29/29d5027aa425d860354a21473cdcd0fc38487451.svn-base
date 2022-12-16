@@ -1,0 +1,123 @@
+import { Component, OnInit, ViewEncapsulation, AfterViewInit } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser';
+import { Helpers } from '../../../../helpers';
+import { Router, ActivatedRoute, Params } from '@angular/router';
+import { ArtistDetails } from './artistdetails.service';
+import { WSResponse } from "../../../../ws-response";
+//import { Genres} from './genres';
+import { Observable } from 'rxjs';
+
+import { YouTubeVideo } from "./youtubevideo";
+import "rxjs/add/operator/map";
+//import { Artist } from "./artist";
+
+
+
+@Component({
+    selector: "app-artist-details",
+    templateUrl: "./artist-details.component.html",
+    encapsulation: ViewEncapsulation.None,
+    providers: [ArtistDetails]
+
+})
+
+export class ArtistDetailsComponent implements OnInit, AfterViewInit {
+
+    public data: any = {artist_genres : [], budget: {amount : 0}};
+    // public formData: YouTubeArtist;
+    public artistVideos: Array<YouTubeVideo>;
+
+    public videoUrl: any = null;
+
+    public artistName: string;
+    public artistImage: string;
+
+    public artistId: number;
+
+    public relatedArtists: Array<any>;
+
+    public video:{title:string, description:string} = {title: "", description: ""};
+
+
+    constructor(private activatedRoute: ActivatedRoute, public _artistDetails: ArtistDetails, public domSanitizer: DomSanitizer) {
+
+    }
+
+    ngOnInit() {
+
+    }
+
+    addArtistButton () {
+        this._artistDetails.addArtist(10, this.artistId).subscribe((response: WSResponse) => {
+            if(response.status === true){
+                alert("The artist has been added to the event");
+            } else {
+                alert("There was an error processing your request\n\nDetails: " + response.message);
+            }
+        }, (err) => {
+            alert("There was an error communicating with the server");
+        });
+    }
+
+    getArtistDetail(artistId: number) {
+        this._artistDetails.getDetails(artistId).subscribe((t: any) => {
+
+            this.data = t;
+            this.artistName = this.data.name;
+            this.artistImage = this.data.profile_picture;
+
+        }, (err) => {
+            Helpers.setLoading(false);
+            //TODO: Error handling 
+        });
+    }
+
+    getRelatedArtistsDetails(artistId: number) {
+        this._artistDetails.getRelatedArtists(artistId).subscribe((t: any) => {
+            this.relatedArtists = t;
+            //console.log(this.relatedArtists);
+
+        }, (err) =>{
+            Helpers.setLoading(false);
+        });
+    }
+
+    ngAfterViewInit() {
+        console.log("hi");
+        Helpers.setLoading(true);
+        this.activatedRoute.params.subscribe((params: Params) => {
+            this.artistId =  params['id'];
+            this.getArtistDetail(this.artistId);
+            this.getRelatedArtistsDetails(this.artistId);
+            this.getYouTubeArtist(this.artistId);
+            Helpers.setLoading(false);
+
+        });
+    }
+
+    getYouTubeArtist(artistId: number) {
+
+        this._artistDetails.getYouTubeArtistByChannel(artistId).subscribe((data: Array<YouTubeVideo>) => {
+            console.log(data);
+            this.artistVideos = data;
+            this.videoUrl = this.domSanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/' + data[0].videoId);
+            this.video.title = this.artistVideos[0].videoTitle;
+            this.video.description = this.artistVideos[0].videoDescription;
+        }, (err) => {
+            console.log(err);
+
+        });
+    }
+
+    openVideoUrl(index:number) {
+        console.log(index);
+        console.log(this.artistVideos);
+        this.videoUrl = this.domSanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/' + this.artistVideos[index].videoId);
+        this.video.title = this.artistVideos[index].videoTitle;
+        this.video.description = this.artistVideos[index].videoDescription;
+        var aTag = jQuery("#youtubeVideoContainer");
+        jQuery('html,body').animate({ scrollTop: aTag.offset().top - 100 }, 'fast');
+    }
+
+
+}

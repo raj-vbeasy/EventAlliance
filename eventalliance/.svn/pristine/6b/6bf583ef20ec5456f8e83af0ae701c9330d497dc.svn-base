@@ -1,0 +1,156 @@
+<!-- BEGIN: Subheader -->
+<div class="" appunwraptag="">
+    <div class="m-subheader-search">
+        <h1 style="font-size: 2.8rem;font-weight: 400;color: #fff;margin: 0;">
+            Artists
+        </h1>
+        <div class="m-grid m-grid--ver-desktop m-grid--desktop">
+            <div class="m-grid__item m-grid__item--middle">
+                <div class="m-input-icon m-input-icon--fixed m-input-icon--fixed-large m-input-icon--right">
+                    <input class="form-control form-control-sm m-input" placeholder="Keyword" type="text" [(ngModel)]="search.keyword">
+                </div>
+                <div class="m-input-icon m-input-icon--fixed m-input-icon--fixed-md m-input-icon--right">
+                    <select class="form-control m-hrader-search-form__select" [(ngModel)]="search.genreId">
+                         <option *ngFor="let genre of allGenres" [value]="genre.id">{{genre.name}}</option>                      
+                    </select>
+                </div>
+                <div class="m-input-icon m-input-icon--fixed m-input-icon--fixed-md m-input-icon--right">
+                    <select class="form-control m-hrader-search-form__select" [(ngModel)]="search.budgetId">
+                        <option *ngFor="let budget of allBudgets" [value]="budget.id">{{budget.amount}}</option>                 
+                    </select>
+                </div>
+                <!-- <div class="m-input-icon m-input-icon--fixed m-input-icon--fixed-md m-input-icon--right">
+                    <select class="form-control m-hrader-search-form__select">
+                        <option>Any Availablity</option>
+                        <option>Last 30 Days</option>
+                        <option>Last 20 Days</option>
+                    </select>
+                </div> -->
+                <div class="m-input-icon m-input-icon--fixed m-input-icon--fixed-md m-input-icon--right" style="width:80px;">
+                    <button class="btn btn-outline-success  m-btn--bolder m-btn--uppercase" type="button" (click)="searchArtists()">
+                        Filter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: Subheader -->
+
+
+<!-- Team List for Datatable -->
+<div class="m-content">
+        <div class="row">
+            <div class="col-lg-12">
+               <!--  <button  class="btn m-btn--pill m-btn--air btn-custom-header-panel" type="button">
+                    <i class="la la-plus"></i>
+                </button> -->
+                <div class="m-portlet m-portlet--tabs">
+                    <div class="m-portlet__body">					
+                        <div id="artist_datatable" (click)="TableClick($event)"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Team List for Datatable -->
+
+
+<div class="modal fade" id="modal_artist" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{modalTitle}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="m-wizard__form-step" id="m_wizard_form_step_2">
+                    <div class="row">
+                        <div class="col-xl-8 offset-xl-2">
+                            <h5>
+                                Youtube
+                            </h5>
+                            <p>
+                                Please add at least 1 Youtube source. The Youtube data populates all market data.
+                            </p>
+                            <table class="table">
+                                <tbody>
+                                    <tr *ngFor="let index of [1,2,3]">
+
+                                        <td width='15%'>
+                                            <img src="./assets/eventalliance/media/img/users/user4.jpg" style=" border-radius: 50%; height:50px; width:50px;" alt=""
+                                            />
+                                        </td>
+                                        <td width='45%'>
+                                            <strong>Always accending</strong>
+                                            <br/>
+                                            <small>35.25K Total Views</small>
+                                        </td>
+
+                                        <td width='10%'>
+                                            <i class="fa fa-ellipsis-h"></i> &nbsp;&nbsp;&nbsp;
+
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+                            <div class="m-separator m-separator--dashed m-separator--lg"></div>
+                            <button type="button" class="btn btn-outline-metal m-btn btn-sm m-btn--outline-2x uppercase">
+                                ADD SOURCE
+                            </button>
+
+                            <hr/>
+                            <h5>Profile</h5>
+                            <div class="m-card-profile">
+                                <div class="m-card-profile__pic">
+                                    <div class="m-card-profile__pic-wrapper">
+                                        <img src="./assets/eventalliance/media/img/users/user4.jpg" alt="">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="m-form__section m-form__section--first">
+                                <br/>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Artist Name *</label>
+                                        <input type="text" class="form-control m-input m-input--square" placeholder="Artist Name">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Status *</label>
+                                        <input type="text" class="form-control m-input m-input--square" placeholder="Status">
+                                    </div>
+                                </div>
+                                <br/>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label>Youtube Soruce *</label>
+                                        <input type="text" class="form-control m-input m-input--square" placeholder="Youtube channel VEVO">
+                                        <small>Select the Youtube Source for your Artist profile image. Genres description and links</small>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Budget *</label>
+                                        <input type="text" class="form-control m-input m-input--square" placeholder="$500K - $750K">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="float-left">
+                    <button type="button" class="btn btn-outline-accent m-btn--outline-2x m-btn--uppercase" data-dismiss="modal">Cancel</button>
+                </div>
+                <div class="float-right">
+                    <button type="button" class="btn btn-accent m-btn m-btn--custom m-btn--bolder m-btn--uppercase">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

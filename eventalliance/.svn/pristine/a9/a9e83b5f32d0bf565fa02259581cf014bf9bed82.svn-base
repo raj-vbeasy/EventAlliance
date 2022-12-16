@@ -1,0 +1,100 @@
+import { Component, OnInit, ViewEncapsulation, AfterViewInit, Input, ViewChildren, Directive, HostListener } from '@angular/core';
+import { FormControl, FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { Helpers } from '../../../../helpers';
+import { ScriptLoaderService } from '../../../../_services/script-loader.service'
+import { environment } from '../../../../../environments/environment'
+import { WSResponse } from "../../../../ws-response";
+
+import { ArtistService } from './artists.service'
+import { Artist } from './artist';
+import { ArtistChannel } from "./artistchannel";
+import { Channel } from "./channel";
+import { ArtistDataTable } from "./artists.datatable";
+
+
+import * as $ from "jquery";
+declare var jQuery: any;
+
+
+@Component({
+    selector: "app-artists",
+    templateUrl: "./artists.component.html",
+    encapsulation: ViewEncapsulation.None,
+    providers: [ArtistService, ArtistDataTable],
+})
+
+export class ArtistsComponent implements OnInit, AfterViewInit {
+    public formData: Artist;
+    public modalTitle: string;
+
+    teamForm: FormGroup;
+    formUserID = [];
+
+    constructor(private _artistService: ArtistService, private _artistDataTable: ArtistDataTable, private _scriptLoaderService: ScriptLoaderService) {
+        this.formData = new Artist();
+    }
+
+
+    ngOnInit() {
+
+    }
+
+    public openTeamAddModal() {
+        this.formData.reset();
+        this.modalTitle = "Create an Artist";
+        jQuery("#editArtist").modal("show");
+    }
+
+    public TableClick($e: any) {
+        var target = $e.target || $e.srcElement || $e.currentTarget;
+
+        if (jQuery(target).hasClass("modal-activator")) {
+            this._getArtistDetails(jQuery(target).data("id"));
+            $e.preventDefault();
+        } else {
+            var parent = jQuery(target).parent();
+            if (parent.hasClass("modal-activator")) {
+                this._getArtistDetails(parent.data("id"));
+                $e.preventDefault();
+            }
+        }
+    }
+
+    private _getArtistDetails(artistId: number) {
+        this.formData.reset();
+        console.log('click' + artistId);
+        Helpers.setLoading(true);
+        this._artistService.getArtistDetails(artistId).subscribe((t: Artist) => {
+            Helpers.setLoading(false);
+            this.formData = t;
+            this.modalTitle = "Edit " + this.formData.name;
+            console.log(t);
+            jQuery("#modal_artist").modal("show");
+        }, (err) => {
+            Helpers.setLoading(false);
+            //TODO: Error handling 
+        });
+    }
+
+
+    ngAfterViewInit() {
+
+        this.formData.reset();
+
+
+        //Initialize the bootstrap modals;
+        jQuery("#modal_artist").modal({ show: false }).on("hidden.bs.modal", (e) => {
+            this.formData.reset();
+        });
+        jQuery("#modal_artist").modal({ show: false }).on("hidden.bs.modal", (e) => {
+            this.formData.reset();
+        });
+        this._artistDataTable.load();
+
+    }
+
+    test() {
+        alert('xxx');
+    }
+
+}

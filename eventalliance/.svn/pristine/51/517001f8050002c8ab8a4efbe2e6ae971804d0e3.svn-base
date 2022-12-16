@@ -1,0 +1,106 @@
+import { Component, OnInit, ViewEncapsulation, AfterViewInit, Input, ViewChildren, Directive, HostListener } from '@angular/core';
+
+import { FormControl, FormGroup, FormBuilder, Validators } from '@angular/forms';
+
+import { Helpers } from '../../../../helpers';
+
+import { TeamService } from './teams.service'
+import { Team } from './team';
+import { TeamMember } from './teammember';
+import { TeamDataTable  } from "./teams.datatable";
+
+import { WSResponse } from "../../../../ws-response";
+
+import * as $ from "jquery";
+
+
+declare var jQuery: any;
+
+
+@Component({
+    selector: "app-teams",
+    templateUrl: "./teams.component.html",
+    encapsulation: ViewEncapsulation.None,
+    providers: [TeamService, TeamDataTable],
+})
+
+export class TeamsComponent implements OnInit, AfterViewInit {
+    public formData: Team;
+
+    users: Team[];
+    teammember: TeamMember[];
+
+    //v2
+    teamForm: FormGroup;
+    formUserID = [];
+
+    constructor(private _teamService: TeamService, private _teamDataTable: TeamDataTable) {
+        this.formData = new Team();
+    }
+
+
+    ngOnInit() {
+
+    }
+
+    public TableClick($e:any){
+        var target = $e.target || $e.srcElement || $e.currentTarget;
+        
+        if(jQuery(target).hasClass("modal-activator")){
+            this._getTeamDetails(jQuery(target).data("id"));
+            $e.preventDefault();
+        } else {
+            var parent = jQuery(target).parent();
+            if(parent.hasClass("modal-activator")){
+                this._getTeamDetails(parent.data("id"));
+                $e.preventDefault();
+            }
+        }
+    }
+
+    private _getTeamDetails(teamId: number){
+        this.formData.reset();
+        Helpers.setLoading(true);
+        this._teamService.getTeamDetailWithMembers(teamId).subscribe((t:Team)=>{
+            Helpers.setLoading(false);
+            this.formData = t;
+            jQuery("#editTeam").modal("show");
+        }, (err)=>{
+            Helpers.setLoading(false);
+            //TODO: Error handling
+        });
+    }
+
+    public SaveTeam():void{
+        Helpers.setLoading(true);
+        this._teamService.updateTeam(this.formData).subscribe((response:WSResponse)=>{
+            Helpers.setLoading(false);
+            if(response.status === true){
+                //TODO: show success alert
+                jQuery("#editTeam").modal("hide");
+                this.formData.reset();
+            } else {
+                //TODO: Show failure alert
+            }
+        }, (err)=>{
+            Helpers.setLoading(false);
+            //TODO: Error handling
+        });
+    }
+
+
+    ngAfterViewInit() {
+        //Initialize the bootstrap modals;
+        jQuery("#editTeam").modal({show: false}).on("hidden.bs.modal", (e) => {
+            this.formData.reset();
+        });
+        jQuery("#addTeam").modal({show: false}).on("hidden.bs.modal", (e) => {
+            this.formData.reset();
+        });
+        this._teamDataTable.load();
+    }
+
+    eaInsertTeam(value) {
+        console.dir(this);
+    }
+}

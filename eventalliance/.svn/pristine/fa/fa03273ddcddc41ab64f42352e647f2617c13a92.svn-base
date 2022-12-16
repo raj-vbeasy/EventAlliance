@@ -1,0 +1,187 @@
+<!-- BEGIN: Subheader -->
+<div class="" appunwraptag="">
+	<div class="m-subheader-search">
+		<h1 style="font-size: 2.8rem;font-weight: 400;color: #fff;margin: 0;">
+			Teams
+		</h1>
+		<form class="m-form">
+			<div class="m-grid m-grid--ver-desktop m-grid--desktop">
+				<div class="m-grid__item m-grid__item--middle">
+					<div class="m-input-icon m-input-icon--fixed m-input-icon--fixed-large m-input-icon--right">
+						<input class="form-control form-control-sm m-input" placeholder="Keyword" type="text">
+					</div>
+					<div class="m-input-icon m-input-icon--fixed m-input-icon--fixed-md m-input-icon--right">
+						<select class="form-control m-hrader-search-form__select">
+							<option>All Role</option>
+							<option>Hip hop</option>
+							<option>Jazz</option>
+						</select>
+					</div>
+					<div class="m-input-icon m-input-icon--fixed m-input-icon--fixed-md m-input-icon--right" style="width:80px;">
+						<button class="btn btn-outline-success  m-btn--bolder m-btn--uppercase" type="button">
+							Filter
+						</button>
+					</div>
+					<a data-toggle="modal" data-target="#addTeam" href="#" class="m-menu__link">
+						<button class="btn btn-outline-success  m-btn--bolder m-btn--uppercase" type="button">
+							ADD TEAM
+						</button>
+					</a>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<!-- END: Subheader -->
+
+<div class="m-content">
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="m-portlet m-portlet--tabs">
+				<div class="m-portlet__body">
+					<table class="table">
+						<thead>
+							<tr>
+								<th width="30%">Title</th>
+								<th width="20%">Owner</th>
+								<th width="20%">Members</th>
+								<th width="20%">Event</th>
+								<th width="10%">&nbsp;</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let index of [0,1,2,3,4,5]">
+								<td>
+									<a data-toggle="modal" data-target="#editTeam" href="#" class="m-menu__link">
+										<img src="./assets/eventalliance/media/img/users/user4.jpg" style="border-radius: 50%; height:50px; width:50px;" alt="" />
+										<strong>Town of Frisco</strong>
+									</a>
+								</td>
+								<td>Nora Gilbertson</td>
+								<td>4</td>
+								<td>3</td>
+								<td>
+									<i class="fa fa-ellipsis-h"></i>
+									&nbsp;&nbsp;&nbsp;
+									<a data-toggle="modal" data-target="#editTeam" href="#" class="m-menu__link">
+										<i class="fa fa-edit"></i>
+									</a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div class="modal fade" id="editTeam" role="dialog">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Edit Town of Frisco</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">×</span>
+				</button>
+			</div>
+			<div class="modal-body">
+			
+				<div class="m-stack__item m-stack__item--center">
+					<div class="m-card-profile">
+						<div class="m-card-profile__pic">
+							<div class="m-card-profile__pic-wrapper">
+								<img src="./assets/eventalliance/media/img/users/user4.jpg" alt="">
+							</div>
+						</div>
+						<div class="m-card-profile__details">
+							<small>Photo requirement go here...</small>
+
+						</div>
+						<div class="form-group m-form__group">
+							<label for="exampleInputEmail1">Team Name</label>
+							<input type="text" class="form-control m-input m-input--square" aria-describedby="emailHelp" placeholder="Town of Frisco">
+						</div>
+						<hr/>
+
+					</div>
+					<div>
+						<h5 style="color:#575962">Members</h5>
+					</div>
+					<table class="table">
+						<thead>
+							<tr>
+								<th width="40%">Name</th>
+								<th width="20%">Role</th>
+								<th width="40%" align="right">&nbsp;</th>
+
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let index of [0,1,2]">
+								<td>
+									<a routerLink="/event-summary" class="m-menu__link">
+										<img src="./assets/eventalliance/media/img/users/user4.jpg" style="border-radius: 50%; height:50px; width:50px;" alt="" />
+										<strong>Nora Gilgerta</strong>
+									</a>
+								</td>
+								<td>Owner</td>
+								<td align="right">
+									<i class="fa fa-ellipsis-h"></i>
+
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline-metal m-btn m-btn--custom m-btn--outline-2x" data-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-accent m-btn m-btn--custom m-btn--bolder m-btn--uppercase">Done</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="addTeam" role="dialog">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Create Team</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">×</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="m-card-profile">
+					<div class="m-card-profile__pic">
+						<div class="m-card-profile__pic-wrapper">
+							<img src="./assets/eventalliance/media/img/users/user4.jpg" alt="">
+						</div>
+					</div>
+					<div class="m-card-profile__details">
+						<small>Photo requirement go here...</small>
+
+					</div>
+					<div class="form-group m-form__group">
+						<label for="exampleInputEmail1">Team Name</label>
+						<input type="text" class="form-control m-input m-input--square" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Team Name">
+					</div>
+					<hr/>
+
+				</div>
+				<div>
+					<h5 style="color:#575962">Members</h5>
+				</div>
+				<div style="background-color: #f8f6fc;padding: 10px;">
+					<p>This team does not currently have any members.</p>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline-metal m-btn m-btn--custom m-btn--outline-2x" data-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-accent m-btn m-btn--custom m-btn--bolder m-btn--uppercase">Done</button>
+			</div>
+		</div>
+	</div>
+</div>

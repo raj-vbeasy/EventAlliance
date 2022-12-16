@@ -1,0 +1,63 @@
+//import { TeamMember } from "./teammember";
+
+export class Event {
+    id: number;
+    name: string;
+    stardata: Date;
+    enddate: Date;
+    photo: string;
+    description: string;
+    venueName: string;
+    addressLineOne: string;
+    addressLineTwo: string;
+    city: string;
+    state: string;
+    zip: string;
+    budgetId: number;
+    numberOfArtist:number;
+    audienceDemographics: string;
+    mode: string;
+    url: string;
+    welcomeMessage: string;
+    legalDisclaimer: string;
+    eventDescription: string;
+    optIn: number;
+    optInMessage: string;
+    thanksMessage: string;
+    reviewEnable: number;
+    createdAt: Date;
+
+    //members: Array<TeamMember>;
+
+    constructor() { 
+    	this.reset();
+    }
+
+    public reset(){
+    	this.id = 0;
+    	this.name = "";
+        this.stardata = null;
+        this.enddate = null;
+        this.photo = "";
+        this.description = "";
+        this.venueName = "";
+        this.addressLineOne = "";
+        this.addressLineTwo = "";
+        this.city = "";
+        this.state = "";
+        this.zip = "";
+        this.budgetId = 0;
+        this.numberOfArtist = 0;
+        this.audienceDemographics = "";
+        this.mode = "";
+        this.url = "";
+        this.welcomeMessage = "";
+        this.legalDisclaimer = "";
+        this.eventDescription = "";
+        this.optIn = 0;
+        this.optInMessage = "";
+        this.thanksMessage = "";
+        this.reviewEnable = 0;
+        this.createdAt = null;
+    }
+}

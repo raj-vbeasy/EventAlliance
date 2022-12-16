@@ -1,0 +1,20 @@
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Helpers } from '../../../../helpers';
+
+
+@Component({
+    selector: "app-event-approval",
+    templateUrl: "./event-approval.component.html",
+    encapsulation: ViewEncapsulation.None,
+})
+export class EventApprovalComponent implements OnInit {
+
+
+    constructor() {
+
+    }
+    ngOnInit() {
+
+    }
+
+}

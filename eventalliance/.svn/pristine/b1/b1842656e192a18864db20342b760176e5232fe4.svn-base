@@ -1,0 +1,151 @@
+<!-- BEGIN: Subheader -->
+<div class="" appunwraptag="">
+	<div class="m-subheader-search" style="padding-bottom: 0;">
+		<button  class="btn m-btn--pill m-btn--air btn-custom-header-panel header-floating-action-button-event-details" type="button" style="width:50px;" >
+            <i class="fa fa-play"></i>
+        </button>
+		<div class="row">
+			<div class="col-md-1">
+				<img [src]="eventDetails.profile_picture ? (environment.graphicsBaseUrl + 'event/' + eventDetails.profile_picture) : './assets/eventalliance/media/img/no-image.jpg'" style="border-radius: 50%; height: 80px; width: 80px" alt="" />
+			</div>
+			<div class="col-md-10">
+				<p style="color: #fff;margin: 0;">
+					{{eventDetails.city}}
+				</p>
+				<h1 style="font-size: 2.8rem;font-weight: 400;color: #fff;margin: 0;">
+					{{eventDetails.name}}
+				</h1>
+				<span style="color:#fff;">{{ eventDetails.start_date | date:'shortDate' }} - {{ eventDetails.end_date | date:'shortDate' }}</span>&nbsp;
+				<span *ngIf="eventDetails.status==0" class="m-badge m-badge--primary m-badge--wide" style="background-color: #204d66; ">
+					Churn
+				</span>
+				<span *ngIf="eventDetails.status==1" class="m-badge m-badge--primary m-badge--wide" style="background-color: #204d66; ">
+					In-Review
+				</span>&nbsp;
+				<span *ngIf="eventDetails.status==2" class="m-badge m-badge--primary m-badge--wide" style="background-color: #204d66; ">
+					Quote Request
+				</span>&nbsp;
+				<span *ngIf="eventDetails.status==3" class="m-badge m-badge--primary m-badge--wide" style="background-color: #204d66; ">
+					Booked
+				</span>&nbsp;
+				<br/>
+				<!-- start menu -->
+
+				<ul class="nav nav-tabs  m-tabs-line  m-tabs-line--2x m-tabs-line--white" style="margin-bottom:-1px;" role="tablist">
+					<li class="nav-item m-tabs__item">
+						<a class="nav-link m-tabs__link" data-toggle="tab" routerLink="/event-summary/{{eventId}}" role="tab">
+							<small>Summary</small>
+						</a>
+					</li>
+
+					<li class="nav-item m-tabs__item">
+						<a class="nav-link m-tabs__link" data-toggle="tab" routerLink="/event-approval/{{eventId}}" role="tab">
+							<small>Approval</small>
+						</a>
+					</li>
+					<li class="nav-item m-tabs__item">
+						<a class="nav-link m-tabs__link" data-toggle="tab" routerLink="/event-public-survey/{{eventId}}" role="tab">
+							<small>Public Survey</small>
+						</a>
+					</li>
+					<li class="nav-item m-tabs__item">
+						<a class="nav-link m-tabs__link active" data-toggle="tab" routerLink="/event-picks/{{eventId}}" role="tab">
+							<small>Picks</small>
+						</a>
+					</li>
+
+				</ul>
+				<!-- end menu -->
+			</div>
+		</div>
+	</div>
+</div>
+<!-- END: Subheader -->
+
+
+
+
+<div class="m-content">
+
+	<div class="row">
+		<div class="col-md-12">
+			<div class="m-portlet m-portlet--bordered-semi  m-portlet--fit " >
+				<div class="m-portlet__head">
+					<div class="m-portlet__head-caption">
+						<div class="m-portlet__head-title">
+							<h3 class="m-portlet__head-text">
+								Artist Review
+							</h3>
+						</div>
+					</div>
+				</div>
+				<div class="m-portlet__body">
+					<table class="table" >
+						<thead>
+							<tr>
+								<th width="25%">Name</th>
+								<th width="15%">Quote Status</th>
+								<th width="20%">Quote Cost</th>
+								<th width="20%">Public Approval</th>
+								<th width="10%">Team Approval</th>
+								<th width="10%" align="right">&nbsp;</th>
+
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let item of eventArtistSurveyProp">
+								<td>
+									<img *ngIf = "eventArtistSurvey[item].artistProfilePicture == null" src="./assets/eventalliance/media/img/users/user4.jpg" style="border-radius: 50%; height:50px; width:50px;"  alt="" />
+									<img *ngIf = "eventArtistSurvey[item].artistProfilePicture != null" src="{{eventArtistSurvey[item].artistProfilePicture}}" style="border-radius: 50%; height:50px; width:50px;"  alt="" />
+									&nbsp;&nbsp;&nbsp; 
+									<strong>
+										<a routerLink="/artist-details/{{eventArtistSurvey[item].artistId}}" class="m-menu__link">
+											<span class="m-menu__item-here"></span>
+											<span class="m-menu__link-text">
+												{{item}}
+											</span>
+										</a>
+									</strong>
+									
+								</td>
+								<td>
+									<span *ngIf="eventArtistSurvey[item].quoteStatus == 0" class="m-badge m-badge--metal m-badge--wide" >No Quote</span>
+									<span *ngIf="eventArtistSurvey[item].quoteStatus == 1" class="m-badge m-badge--primary m-badge--wide" >In-Progress</span>
+									<span *ngIf="eventArtistSurvey[item].quoteStatus == 2" class="m-badge m-badge--danger m-badge--wide" >Unavailable</span>
+									<span *ngIf="eventArtistSurvey[item].quoteStatus == 3" class="m-badge m-badge--success m-badge--wide" >Booked</span>
+								</td>
+								<td>{{eventArtistSurvey[item].budget}}</td>
+								<td>
+									<span class="m-badge m-badge--success m-badge--wide" >
+										{{eventArtistSurvey[item].public}}%
+									</span>
+								</td>
+								<td>
+									<span class="m-badge m-badge--metal m-badge--wide" >
+										{{eventArtistSurvey[item].team}}%
+									</span>
+								</td>
+
+								
+								<td align="right">
+									<a href="javascript:void(0)" (click)="savePick(eventArtistSurvey[item].artistId)">
+										<span class="m-badge m-badge--danger m-badge--wide"><i class="fa fa-times"></i></span>
+									</a>
+									
+									
+								</td>
+							</tr>
+
+						</tbody>
+
+					</table>
+
+				</div>
+			</div>
+		</div>
+
+
+	</div>
+</div>
+
+

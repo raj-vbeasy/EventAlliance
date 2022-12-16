@@ -1,0 +1,18 @@
+export class TeamMember {
+
+    // Team Edit
+    image: string;
+    name: string;
+    role: string;
+
+
+    constructor() { 
+    	this.reset();
+    }
+
+    public reset(){
+    	this.image = "";
+    	this.name = "";
+    	this.role = "";
+    }
+}

@@ -1,0 +1,129 @@
+import { Injectable, EventEmitter, Output } from '@angular/core';
+import { environment } from '../../../../../environments/environment';
+
+import { Team } from './team';
+import { TeamMember } from './teammember';
+import { TeamService } from './teams.service';
+
+declare var jQuery: any;
+
+@Injectable()
+export class TeamDataTable {
+
+    @Output() dataTableAjaxDone: EventEmitter<any> = new EventEmitter<any>();
+
+    private _table: any;
+
+    constructor(private _teamService: TeamService) {
+        // code...
+    }
+
+
+    public redraw(): void {
+        this._table.reload();
+    }
+
+
+    public load(): void {
+        var columns = [];
+        columns.push({
+            field: "id",
+            title: "ID",
+            sortable: !1,
+            width: 40,
+            selector: !1,
+            textAlign: "center"
+        });
+        columns.push({
+            field: "name",
+            title: "Title"
+        });
+        columns.push({
+            field: "owner",
+            title: "Owner",
+            width: 100,
+            template: function(row) {
+                var _ret: string = "N/A";
+                for (var i = 0; i < row.team_members.length; i++) {
+                    if (row.team_members[i].team_role_id == 1) {
+                        _ret = row.team_members[i].user.first_name + " " + row.team_members[i].user.last_name;
+                    }
+                }
+                return _ret;
+
+            }
+        });
+        columns.push({
+            field: "member",
+            title: "Members",
+            width: 100,
+            template: function(row) {
+                return row.team_members.length;
+            }
+        });
+        columns.push({
+            field: "event",
+            title: "Events",
+            width: 100,
+            template: function(row) {
+                return row.events.length;
+            }
+        });
+        columns.push({
+            field: "Actions",
+            width: 110,
+            title: "Actions",
+            sortable: !1,
+            overflow: "visible",
+            template: function(t, e, a) {
+                return '<a href="javascript:void(0)" class="m-portlet__nav-link btn m-btn m-btn--hover-accent m-btn--icon m-btn--icon-only m-btn--pill modal-activator" data-id="' + t.id + '" title="Edit details"><i class="la la-edit"></i></a><a href="javascript:void(0)" class="m-portlet__nav-link btn m-btn m-btn--hover-danger m-btn--icon m-btn--icon-only m-btn--pill btn-delete" data-id="' + t.id + '" title="Delete"><i class="la la-trash"></i></a>';
+            }
+        });
+
+        var _self = this;
+
+        this._table = jQuery("#team_datatable").mDatatable({
+            data: {
+                type: "remote",
+                source: {
+                    read: {
+                        method: "GET",
+                        url: environment.apiBaseUrl + "teams/list.json",
+                        map: function(t: any) {
+                            _self._teamService.setTeamList(t.data);
+                            var e = t;
+                            return void 0 !== t.data && (e = t.data), e
+                        }
+                    }
+                },
+                pageSize: 10,
+                serverPaging: !0,
+                serverFiltering: !0,
+                serverSorting: !0
+            },
+            layout: {
+                scroll: !1,
+                footer: !1
+            },
+            sortable: !0,
+            pagination: !0,
+            toolbar: {
+                items: {
+                    pagination: {
+                        pageSizeSelect: [10, 20, 30, 50, 100]
+                    }
+                }
+            },
+            search: {
+                input: $("#generalSearch")
+            },
+            columns: columns
+        });
+
+        this._table.getDataSourceQuery();
+
+        jQuery("#team_datatable").on("m-datatable--on-ajax-done", (e) => {
+            this.dataTableAjaxDone.emit(e);
+        });
+    }
+}

@@ -1,0 +1,51 @@
+import { Component, OnInit, ViewEncapsulation, AfterViewInit } from '@angular/core';
+import { Helpers } from '../../../../helpers';
+import { EventService } from '../events/events.service';
+import { ActivatedRoute, Params } from '@angular/router';
+import { Event } from '../events/event';
+import { environment } from "../../../../../environments/environment";
+import { ScriptLoaderService } from "../../../../_services/script-loader.service";
+
+@Component({
+    selector: "app-event-public-survey",
+    templateUrl: "./event-public-survey.component.html",
+    encapsulation: ViewEncapsulation.None,
+    providers: [EventService]
+})
+export class EventPublicSurveyComponent implements OnInit, AfterViewInit {
+
+    public eventDetails: any;
+    public eventId: number;
+    public environment: any;
+
+     constructor(private _eventService: EventService, private _activatedRoute: ActivatedRoute, private _script: ScriptLoaderService) {
+        this.eventDetails = new Event();
+        this.environment = environment;
+    }
+
+    ngOnInit() {
+        
+    }
+
+    ngAfterViewInit(){
+        this._script.loadScripts('app-event-public-survey',
+            ['assets/app/js/dashboard.js']);
+
+        console.log("HELLO");
+
+        this._activatedRoute.params.subscribe((params: Params) => {
+            this.eventId =  params['id'];
+            
+            Helpers.setLoading(true);
+            this._eventService.getEventDetails(this.eventId).subscribe((data:any) => {
+                Helpers.setLoading(false);
+                this.eventDetails = data.event;
+            }, (err) => {
+                Helpers.setLoading(false);
+                //TODO: Error handling
+            });
+
+        });
+    }
+
+}

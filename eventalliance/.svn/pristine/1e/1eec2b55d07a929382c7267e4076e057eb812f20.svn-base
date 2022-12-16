@@ -1,0 +1,136 @@
+import { Injectable } from '@angular/core';
+import { environment } from '../../../../../environments/environment';
+
+import { Team } from './team';
+import { TeamMember } from './teammember';
+
+declare var jQuery: any;
+
+@Injectable()
+export class TeamDataTable {
+
+    constructor() {
+        // code...
+    }
+
+    load() {
+        var columns = [];
+        columns.push({
+            field: "id",
+            title: "ID",
+            sortable: !1,
+            width: 40,
+            selector: !1,
+            textAlign: "center"
+        });
+        columns.push({
+            field: "name",
+            title: "Title"
+        });
+        columns.push({
+            field: "owner",
+            title: "Owner",
+            width: 100,
+            template: function(row) {
+                if (row.owner != null) {
+                    return row.owner.name;
+                } else {
+                    return "N/A";
+                }
+            }
+        });
+        columns.push({
+            field: "member",
+            title: "Members",
+            width: 100,
+            template: function(row) {
+                return row.members.length;
+            }
+        });
+        columns.push({
+            field: "event",
+            title: "Events",
+            width: 100,
+            template: function(row) {
+                return row.events.length;
+            }
+        });
+        columns.push({
+            field: "Actions",
+            width: 110,
+            title: "Actions",
+            sortable: !1,
+            overflow: "visible",
+            template: function(t, e, a) {
+                return '\t\t\t\t\t\t<div class="dropdown ' + (a.getPageSize() - e <= 4 ? "dropup" : "") + '">\t\t\t\t\t\t\t<a href="#" class="btn m-btn m-btn--hover-accent m-btn--icon m-btn--icon-only m-btn--pill" data-toggle="dropdown">                                <i class="la la-ellipsis-h"></i>                            </a>\t\t\t\t\t\t  \t<div class="dropdown-menu dropdown-menu-right">\t\t\t\t\t\t    \t<a class="dropdown-item" href="#"><i class="la la-edit"></i> Edit Details</a>\t\t\t\t\t\t    \t<a class="dropdown-item" href="#"><i class="la la-leaf"></i> Update Status</a>\t\t\t\t\t\t    \t<a class="dropdown-item" href="#"><i class="la la-print"></i> Generate Report</a>\t\t\t\t\t\t  \t</div>\t\t\t\t\t\t</div>\t\t\t\t\t\t<a href="#" class="m-portlet__nav-link btn m-btn m-btn--hover-accent m-btn--icon m-btn--icon-only m-btn--pill modal-activator" data-id="' + t.id + '" title="Edit details">\t\t\t\t\t\t\t<i class="la la-edit"></i>\t\t\t\t\t\t</a>\t\t\t\t\t\t<a href="#" class="m-portlet__nav-link btn m-btn m-btn--hover-danger m-btn--icon m-btn--icon-only m-btn--pill" title="Delete">\t\t\t\t\t\t\t<i class="la la-trash"></i>\t\t\t\t\t\t</a>\t\t\t\t\t'
+            }
+        });
+
+        var t = jQuery("#team_datatable").mDatatable({
+            data: {
+                type: "remote",
+                source: {
+                    read: {
+                        method: "GET",
+                        url: environment.apiBaseUrl + "teams/list.json",
+                        map: function(t: any) {
+                            var teams: Array<Team> = [];
+                            var _team: Team;
+                            var _teamMember: TeamMember;
+                            for (var i = 0; i < t.data.length; i++) {
+                                _team = new Team();
+                                _team.id = t.data[i].id;
+                                _team.name = t.data[i].name;
+                                _team.photo = t.data[i].photo;
+
+                                for (var j = 0; j < t.data[i].team_members.length; j++) {
+                                    _teamMember = new TeamMember();
+                                    _teamMember.id = t.data[i].team_members[j]["id"];
+                                    _teamMember.userId = t.data[i].team_members[j]["user"]["id"];
+                                    _teamMember.image = t.data[i].team_members[j]["user"]["profile_pic"];
+                                    _teamMember.name = t.data[i].team_members[j]["user"]["first_name"] + " " + t.data[i].team_members[j]["user"]["last_name"];;
+                                    _teamMember.roleId = t.data[i].team_members[j]["team_role"]["id"];
+                                    _teamMember.role = t.data[i].team_members[j]["team_role"]["role_name"];
+
+                                    _team.members.push(_teamMember);
+
+                                    if (t.data[i].team_members[j]["team_role"]["id"] == 1) {
+                                        _team.owner = _teamMember;
+                                    } else if (t.data[i].team_members[j]["team_role"]["id"] == 3) {
+                                        _team.representative = _teamMember;
+                                    }
+                                }
+
+                                teams.push(_team);
+                            }
+
+                            return teams;
+                        }
+                    }
+                },
+                pageSize: 10,
+                serverPaging: !0,
+                serverFiltering: !0,
+                serverSorting: !0
+            },
+            layout: {
+                scroll: !1,
+                footer: !1
+            },
+            sortable: !0,
+            pagination: !0,
+            toolbar: {
+                items: {
+                    pagination: {
+                        pageSizeSelect: [10, 20, 30, 50, 100]
+                    }
+                }
+            },
+            search: {
+                input: $("#generalSearch")
+            },
+            columns: columns
+        });
+        t.getDataSourceQuery();
+    }
+}

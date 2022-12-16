@@ -1,0 +1,195 @@
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+
+import { Helpers } from '../../../../helpers';
+import { ScriptLoaderService } from '../../../../_services/script-loader.service';
+
+
+import { EventService } from './events.service';
+import { Event } from './event';
+import { EventDataTable } from "./events.datatable";
+import { Budgets } from './budgets';
+import { ArtistNumbers } from './artistnumbers';
+
+import { WSResponse } from "../../../../ws-response";
+
+
+import * as $ from "jquery";
+
+
+declare var jQuery: any;
+
+
+
+@Component({
+    selector: "app-events",
+    templateUrl: "./events.component.html",
+    encapsulation: ViewEncapsulation.None,
+    providers: [EventService, EventDataTable],
+})
+
+export class EventsComponent implements OnInit {
+
+    public formData: Event;
+    public amounts: Array<Budgets>;
+    public activatedMenu: number = 1;
+    public modalTitle: string;
+    //public eventTime: Date;
+    public _number_of_artists: Array<ArtistNumbers>;
+
+
+    constructor(private _scriptLoaderService: ScriptLoaderService, private _eventDataTable: EventDataTable, private _eventService: EventService) {
+        this.formData = new Event();
+    }
+
+    public TableClick($e: any) {
+        var target = $e.target || $e.srcElement || $e.currentTarget;
+
+        if (jQuery(target).hasClass("modal-activator")) {
+            this._getEventDetails(jQuery(target).data("id"));
+            $e.preventDefault();
+        } else {
+            var parent = jQuery(target).parent();
+            if (parent.hasClass("modal-activator")) {
+                this._getEventDetails(parent.data("id"));
+                $e.preventDefault();
+            }
+        }
+    }
+
+    private _getEventDetails(eventId: number) {
+        this.formData.reset();
+        var i: number;
+        var _eventList: Array<Event> = this._eventService.getEventList();
+
+        for (i = 0; i < _eventList.length; i++) {
+            if (_eventList[i].id == eventId) {
+                Object.assign(this.formData, _eventList[i]);
+				
+                this.modalTitle = "Edit Event: " + this.formData.name;
+
+				try{
+					var startDate = new Date(this.formData.start_date);
+					var endDate = new Date(this.formData.end_date);
+					
+					jQuery('#txtEventDateRange').data('daterangepicker').setStartDate(startDate);
+					jQuery('#txtEventDateRange').data('daterangepicker').setEndDate(endDate);
+					
+					jQuery("#txtEventDateRange").val(jQuery('#txtEventDateRange').data('daterangepicker').startDate.format('MM/DD/YYYY') + ' - ' + jQuery('#txtEventDateRange').data('daterangepicker').endDate.format('MM/DD/YYYY'));
+				}catch(err){
+					console.error(err);
+				}
+				
+                jQuery("#editEvent").modal("show");
+                break;
+            }
+        }
+    }
+
+
+    ngOnInit() {
+
+    }
+
+
+    public openEventAddModal() {
+        this.formData.reset();
+        this.modalTitle = "Create Event";
+        jQuery("#editEvent").modal("show");
+    }
+
+    public SaveEvent(): void {
+        Helpers.setLoading(true);
+        if (this.formData.id > 0) {
+            /* If we are in edit mode, call the updateTeam API */
+            this._eventService.updateEvent(this.formData).subscribe((response: any) => {
+                Helpers.setLoading(false);
+                if (response.response.status === true) {
+                    //TODO: show success alert
+                    jQuery("#editEvent").modal("hide");
+					jQuery("#event_datatable").draw("page");
+                } else {
+                    //TODO: Show failure alert
+                }
+            }, (err) => {
+				console.error(err);
+                Helpers.setLoading(false);
+                //TODO: Error handling
+            });
+        } else {
+            /* Else we are in add mode, call the createTeam API */
+            
+            this._eventService.createEvent(this.formData).subscribe((response: any) => {
+                console.log(response);
+                Helpers.setLoading(false);
+                if (response.response.status === true) {
+                    /* TODO: Team has been crated. Show a success message and close the modal */
+                    jQuery("#editEvent").modal("hide");
+                    jQuery("#event_datatable").draw("page");
+                }
+            }, (err) => {
+                console.log(err);
+                Helpers.setLoading(false);
+            });
+        }
+    }
+
+    ngAfterViewInit() {
+
+        // Fetach Budgets data from service
+        this._eventService.getBudgets().subscribe((data: Array<Budgets>) => {
+            var firstSelectElement = new Budgets();
+            firstSelectElement.id = 0;
+            firstSelectElement.amount = "-- Select --";
+            this.amounts = data;
+            this.amounts.splice(0, 0, firstSelectElement);
+        }, (err) => {
+
+        });
+
+        // Fetach Number of artist data from service
+        this._eventService.getArtistNumbers().subscribe((data: Array<ArtistNumbers>) => {
+            var firstSelectElement_AN = new ArtistNumbers();
+            firstSelectElement_AN.id = 0;
+            firstSelectElement_AN.number_of_artist = "-- Select --";
+            this._number_of_artists = data;
+            this._number_of_artists.splice(0, 0, firstSelectElement_AN);
+        }, (err) => {
+
+        });
+		
+
+		jQuery('#txtEventDateRange').daterangepicker({
+			autoUpdateInput: false,
+			locale: {
+			  format: 'MM/DD/YYYY'
+			}
+		}, 
+		(start, end, label) => {
+			this.formData.start_date = start;
+			this.formData.end_date = end;
+		});
+		
+		jQuery('#txtEventDateRange').on('apply.daterangepicker', (ev, picker) => {
+			this.formData.start_date = picker.startDate.toDate();
+			this.formData.end_date = picker.endDate.toDate();
+			jQuery('#txtEventDateRange').val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+		});
+
+		jQuery('#txtEventDateRange').on('cancel.daterangepicker', (ev, picker) => {
+			this.formData.start_date = null;
+			this.formData.end_date = null;
+			jQuery('#txtEventDateRange').val('');
+		});
+
+        //Initialize the bootstrap modals;
+        jQuery("#editEvent").modal({ show: false }).on("hidden.bs.modal", (e) => {
+            this.formData.reset();
+        });
+        this._eventDataTable.load();
+    }
+
+    toggleMenu(value) {
+        this.activatedMenu = value;
+    }
+
+}

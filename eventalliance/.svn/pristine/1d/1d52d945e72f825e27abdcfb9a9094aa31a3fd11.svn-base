@@ -1,0 +1,7 @@
+export const environment = {
+    production: true,
+    fileUploadUrl: "http://ea.rabidminds.com/staging/api/uploader", 
+    apiBaseUrl: "http://ea.rabidminds.com/staging/api/api/",
+    graphicsBaseUrl: "http://ea.rabidminds.com/staging/api/uploads/",
+    websiteUrl: "http://ea.rabidminds.com/staging/ui/",
+};

@@ -1,0 +1,14 @@
+https://cuppalabs.github.io/angular2-multiselect-dropdown/#/basic
+
+ALTER TABLE `users` ADD `user_type` TINYINT UNSIGNED NOT NULL AFTER `token`;
+
+delete t
+    from artists t join
+         (select product, count(*) as cnt
+          from artists
+          group by name
+         ) tt
+         on tt.name = t.name
+    where tt.cnt > 1 and t.budget_id = 0;
+
+select * from artists t join (select name, count(*) as cnt from artists group by name ) tt on tt.name = t.name where tt.cnt > 1 and t.budget_id = 0 ORDER BY `budget_id` ASC

@@ -1,0 +1,38 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from "rxjs";
+import { environment } from '../../../../../environments/environment';
+import { Team } from "./team";
+import { TeamMember } from "./teammember";
+
+@Injectable()
+export class TeamService {
+
+    constructor(private _httpClient: HttpClient) {
+
+    }
+
+    loadTeams(): Observable<Array<Team>> {
+        return this._httpClient.get<Array<Team>>(environment.apiBaseUrl + "/teams");
+    }
+
+    createTeam(Data: Team): Observable<number> {
+        return this._httpClient.post<number>(environment.apiBaseUrl + "/teams", Data);
+    }
+
+    removeTeam(teamId: number): Observable<boolean> {
+        return this._httpClient.delete<boolean>(environment.apiBaseUrl + "/teams/" + teamId);
+    }
+
+    getMembers(): Observable<Array<TeamMember>> {
+        return this._httpClient.get<Array<TeamMember>>(environment.apiBaseUrl + "/teams/members/");
+    }
+
+    addMember(member: TeamMember): Observable<Array<TeamMember>> {
+        return this._httpClient.post<Array<TeamMember>>(environment.apiBaseUrl + "/teams/members/", member);
+    }
+
+    removeMember(memberId: number): Observable<boolean> {
+        return this._httpClient.delete<boolean>(environment.apiBaseUrl + "/teams/members/" + memberId);
+    }
+}
